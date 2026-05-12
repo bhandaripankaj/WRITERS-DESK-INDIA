@@ -10,7 +10,7 @@ lerna-debug.log*
 admin/node_modules
 backend/node_modules
 client/node_modules
-/admin/package-lock.json
+admin/package-lock.json
 backend/package-lock.json
 client/package-lock.json
 
@@ -19,8 +19,8 @@ admin/.env
 backend/.env
 
 
-client/dist
-admin/dist
+client/dist/*
+admin/dist/
 backend/dist
 
 dist-ssr
