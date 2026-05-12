@@ -1,0 +1,293 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+}
+
+/* WhiteFalcon-style deep navy + violet accent (DARK by default) */
+:root {
+  --radius: 0.75rem;
+  --font-display: "Playfair Display", "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --background: oklch(0.21 0.04 275);
+  --foreground: oklch(0.97 0.01 280);
+  --surface: oklch(0.22 0.045 275);
+  --surface-2: oklch(0.26 0.05 275);
+
+  --card: oklch(0.29 0.04 275);
+  --card-foreground: oklch(0.97 0.01 280);
+  --popover: oklch(0.235 0.05 275);
+  --popover-foreground: oklch(0.97 0.01 280);
+
+  --brand: oklch(0.66 0.21 290);
+  --brand-foreground: oklch(0.99 0 0);
+  --primary: oklch(0.66 0.21 290);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --secondary: oklch(0.28 0.05 275);
+  --secondary-foreground: oklch(0.97 0.01 280);
+  --muted: oklch(0.28 0.05 275);
+  --muted-foreground: oklch(0.74 0.025 280);
+  --accent: oklch(0.32 0.06 280);
+  --accent-foreground: oklch(0.97 0.01 280);
+
+  --success: oklch(0.72 0.16 160);
+  --warning: oklch(0.78 0.16 70);
+  --info: oklch(0.72 0.14 230);
+
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.66 0.21 290 / 50%);
+
+  --gradient-brand: linear-gradient(135deg, oklch(0.7 0.22 295), oklch(0.6 0.22 280));
+  --gradient-hero: radial-gradient(60% 80% at 30% 20%, oklch(0.72 0.18 30 / 0.28), transparent 60%),
+    radial-gradient(50% 60% at 80% 30%, oklch(0.7 0.2 295 / 0.32), transparent 65%),
+    linear-gradient(180deg, oklch(0.22 0.05 280), oklch(0.18 0.04 275));
+  --shadow-brand: 0 20px 60px -20px oklch(0.66 0.21 290 / 0.55);
+  --shadow-card: 0 1px 0 oklch(1 0 0 / 0.04) inset, 0 18px 50px -25px oklch(0 0 0 / 0.6);
+  --section-group-bg: oklch(0.22 0.04 275);
+  --hero-bg-image: url('../src/assets/hero-bg.jpg');
+  --hero-blur: blur(10px);
+   --hero-overlay: linear-gradient(
+    to bottom, 
+    oklch(0.21 0.04 275 / 40%), 
+    oklch(0.21 0.04 275 / 95%)
+  );
+}
+
+.light {
+  --background: oklch(0.99 0.005 280);
+  --foreground: oklch(0.2 0.04 275);
+  --surface: oklch(0.97 0.01 280);
+  --surface-2: oklch(0.94 0.015 280);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.04 275);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.04 275);
+  --secondary: oklch(0.95 0.01 280);
+  --secondary-foreground: oklch(0.2 0.04 275);
+  --muted: oklch(0.95 0.01 280);
+  --muted-foreground: oklch(0.45 0.02 280);
+  --accent: oklch(0.93 0.02 290);
+  --accent-foreground: oklch(0.2 0.04 275);
+  --gradient-hero:
+    radial-gradient(100% 100% at 50% 0%, oklch(0.99 0.01 255 / 0.8), transparent 100%),
+    linear-gradient(180deg, oklch(1 0 0) 0%, oklch(0.98 0.005 250) 100%);
+  --border: oklch(0.2 0.04 275 / 8%);
+  --input: oklch(0.2 0.04 275 / 14%);
+  --shadow-card: 0 18px 40px -20px oklch(0.2 0.04 275 / 0.18);
+  --section-group-bg: oklch(0.98 0.01 280);
+  --hero-bg-image: none;
+  --hero-blur: blur(0px);
+  --hero-overlay: var(--gradient-hero);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+    font-weight: 600;
+  }
+
+  ::selection {
+    background: var(--brand);
+    color: var(--brand-foreground);
+  }
+}
+
+@layer utilities {
+  .bg-section-group {
+    background: linear-gradient(
+      180deg,
+      var(--section-group-bg) 0%, 
+      color-mix(in oklab, var(--section-group-bg) 10%, transparent) 60%
+    );
+    border: 1px solid color-mix(in oklab, var(--border) 50%, transparent);
+    @apply rounded-xl shadow-xl transition-all duration-500 sm:rounded-2xl lg:rounded-[2rem] overflow-hidden;
+  }
+  .container-wide {
+    @apply mx-auto w-full min-w-0 max-w-[1240px] px-4 sm:px-5 md:px-8 lg:px-10;
+  }
+
+  .text-brand {
+    color: var(--brand);
+  }
+
+  .bg-brand {
+    background: var(--brand);
+    color: var(--brand-foreground);
+  }
+
+  .text-gold {
+    color: var(--brand);
+  }
+
+  .bg-gold {
+    background: var(--brand);
+    color: var(--brand-foreground);
+  }
+
+  .bg-gold\/10 {
+    background: color-mix(in oklab, var(--brand) 12%, transparent);
+  }
+
+  .bg-gold\/15 {
+    background: color-mix(in oklab, var(--brand) 18%, transparent);
+  }
+
+  .container-narrow {
+    @apply mx-auto w-full max-w-[920px] px-6 md:px-10;
+  }
+
+  .card-luxe {
+    background: color-mix(in oklab, var(--card) 92%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-card);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 h-12 px-7 rounded-lg font-medium text-sm border transition-colors;
+    border-color: var(--border);
+  }
+
+  .btn-ghost:hover {
+    background: var(--surface-2);
+  }
+
+  .bg-surface {
+    background: var(--surface);
+  }
+
+  .bg-surface-2 {
+    background: var(--surface-2);
+  }
+
+  .gradient-brand-text {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .eyebrow {
+    @apply inline-block text-[11px] uppercase tracking-[0.22em] text-brand font-semibold;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 min-h-11 h-auto min-w-0 py-2.5 px-5 sm:px-6 rounded-lg font-medium text-sm transition-all duration-300;
+    background: var(--gradient-brand);
+    color: var(--brand-foreground);
+    box-shadow: var(--shadow-brand);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 min-h-11 h-auto min-w-0 py-2.5 px-5 sm:px-6 rounded-lg font-medium text-sm border transition-colors duration-300;
+    border-color: var(--border);
+    background: color-mix(in oklab, var(--surface) 70%, transparent);
+    color: var(--foreground);
+  }
+
+  .btn-outline:hover {
+    background: var(--surface-2);
+  }
+
+  .card-soft {
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--card) 80%, transparent) 0%, 
+      color-mix(in oklab, var(--card) 10%, transparent) 60%
+    );
+    border: 1px solid var(--border);
+    border-radius: 0.875rem;
+    box-shadow: var(--shadow-card);
+    transition: transform .35s ease, border-color .3s, box-shadow .35s, background .5s;
+  }
+
+  .card-soft:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--brand) 35%, var(--border));
+  }
+
+  .hairline {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  .pretty {
+    text-wrap: pretty;
+  }
+
+  .balance {
+    text-wrap: balance;
+  }
+}
