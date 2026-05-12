@@ -1,0 +1,22 @@
+{
+  "name": "writersdeskindia",
+  "version": "1.0.0",
+  "description": "This repository contains the admin panel and backend API for Writers Desk India.",
+  "main": "index.js",
+  "scripts": {
+    "client": "cd client && npm run dev",
+    "admin": "cd admin && npm run dev",
+    "backend": "cd backend && npm run dev",
+     "dev": "concurrently \"npm run client\" \"npm run admin\" \"npm run backend\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bhandaripankaj/WRITERS-DESK-INDIA.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bhandaripankaj/WRITERS-DESK-INDIA/issues"
+  },
+  "homepage": "https://github.com/bhandaripankaj/WRITERS-DESK-INDIA#readme"
+}
