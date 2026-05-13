@@ -12,7 +12,7 @@ export function Footer() {
                 <BookOpen className="h-4 w-4 text-white" />
               </span>
               <span className="leading-tight">
-                <span className="block font-display text-[18px] font-semibold">WhiteFalcon</span>
+                <span className="block font-display text-[18px] font-semibold">WritersDesk</span>
                 <span className="block text-[9px] tracking-[0.32em] text-muted-foreground -mt-0.5">PUBLISHING</span>
               </span>
             </Link>
@@ -34,7 +34,7 @@ export function Footer() {
             <h4 className="text-sm font-semibold mb-4 text-foreground">Contact Us</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li className="flex items-start gap-2 break-words">
-                <Mail className="h-4 w-4 mt-0.5 text-brand shrink-0" /> hello@whitefalconpublishing.com
+                <Mail className="h-4 w-4 mt-0.5 text-brand shrink-0" /> hello@writersdeskindia.com
               </li>
               <li className="flex items-start gap-2"><Phone className="h-4 w-4 mt-0.5 text-brand" /> +1 (888) 123-4567</li>
               <li className="flex items-start gap-2"><MapPin className="h-4 w-4 mt-0.5 text-brand" /> 123 Publishing Lane,<br />New York, NY 10001, USA</li>
@@ -43,7 +43,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-border text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} WhiteFalcon Publishing. All rights reserved.
+          © {new Date().getFullYear()} WritersDesk Publishing. All rights reserved.
         </div>
       </div>
     </footer>

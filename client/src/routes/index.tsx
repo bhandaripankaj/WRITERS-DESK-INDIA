@@ -276,31 +276,36 @@ function HomePage() {
               </p>
             </div>
             <div className="mt-8 sm:mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6 lg:gap-6">
-                {exploreCategories.map((c, i) => (
-                  <motion.div
-                    key={c.title}
-                    initial={{ opacity: 0, y: 14 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.06 }}
-                    className="group flex min-h-[168px] sm:min-h-[188px] lg:min-h-[220px] flex-col rounded-xl border border-white/[0.06] bg-[#232938] p-3.5 sm:p-4 md:p-5 transition-colors hover:border-[#7C5CFF]/35"
-                  >
-                    <div className="h-11 w-11 shrink-0 grid place-items-center rounded-lg bg-[#7C5CFF]/18">
-                      <c.icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#7C5CFF]" strokeWidth={1.75} />
-                    </div>
-                    <h3 className="mt-3 sm:mt-4 font-display text-sm sm:text-[15px] md:text-base leading-tight">{c.title}</h3>
-                    <p className="mt-1 sm:mt-1.5 text-[10px] sm:text-[11px] md:text-xs text-[#A0AEC0] leading-snug line-clamp-2">{c.hint}</p>
-                    <div className="mt-auto pt-3">
-                      <Link
-                        to="/books"
-                        search={{ categories: c.slug }}
-                        className="inline-flex items-center gap-1 text-xs sm:text-sm font-medium text-[#7C5CFF] group-hover:gap-2 transition-all"
-                      >
-                        Explore <ArrowRight className="h-3.5 w-3.5" />
-                      </Link>
-                    </div>
-                  </motion.div>
-                ))}
+              {exploreCategories.map((c, i) => (
+                <motion.div
+                  key={c.title}
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.06 }}
+                  className="group flex min-h-[168px] sm:min-h-[188px] lg:min-h-[220px] flex-col rounded-xl border border-white/[0.06] bg-[#232938] p-3.5 sm:p-4 md:p-5 transition-colors hover:border-[#7C5CFF]/35"
+                >
+                  <div className="h-11 w-11 shrink-0 grid place-items-center rounded-lg bg-[#7C5CFF]/18">
+                    <c.icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#7C5CFF]" strokeWidth={1.75} />
+                    {/* <img
+                      src="http://localhost:4000/brush%20(1)-1778637133769-360171861.svg"
+                      alt={c.title}
+                      className="h-5 w-5 sm:h-6 sm:w-6 object-contain"
+                    /> */}
+                  </div>
+                  <h3 className="mt-3 sm:mt-4 font-display text-sm sm:text-[15px] md:text-base leading-tight">{c.title}</h3>
+                  <p className="mt-1 sm:mt-1.5 text-[10px] sm:text-[11px] md:text-xs text-[#A0AEC0] leading-snug line-clamp-2">{c.hint}</p>
+                  <div className="mt-auto pt-3">
+                    <Link
+                      to="/books"
+                      search={{ categories: c.slug }}
+                      className="inline-flex items-center gap-1 text-xs sm:text-sm font-medium text-[#7C5CFF] group-hover:gap-2 transition-all"
+                    >
+                      Explore <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </section>
 

@@ -12,6 +12,10 @@ const bookSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+    subject: {
+      type: String,
+      trim: true
+    },
     description: {
       type: String,
       default: ''
@@ -21,10 +25,14 @@ const bookSchema = new mongoose.Schema(
       required: true,
       min: 0
     },
-    category: {
-      type: String,
-      default: ''
-    },
+    categories: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category'
+    }],
+    collections: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Collection'
+    }],
     cover: {
       type: String,
       default: null

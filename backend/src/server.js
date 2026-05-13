@@ -4,6 +4,8 @@ import dotenv from 'dotenv'
 import { connectDB } from './config/db.js'
 import authRoutes from './routes/authRoutes.js'
 import bookRoutes from './routes/bookRoutes.js'
+import categoryRoutes from './routes/categoryRoutes.js'
+import collectionRoutes from './routes/collectionRoutes.js'
 
 dotenv.config()
 
@@ -12,6 +14,7 @@ const app = express()
 // Middleware
 app.use(cors())
 app.use(express.json())
+app.use(express.static('uploads'))
 
 // Connect to MongoDB
 connectDB()
@@ -19,6 +22,8 @@ connectDB()
 // Routes
 app.use('/api/auth', authRoutes)
 app.use('/api/books', bookRoutes)
+app.use('/api/categories', categoryRoutes)
+app.use('/api/collections', collectionRoutes)
 
 // Health check
 app.get('/api/health', (req, res) => {

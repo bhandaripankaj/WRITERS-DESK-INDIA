@@ -33,7 +33,7 @@ export const COLLECTIONS: CollectionMeta[] = [
   { id: "indian-languages", title: "Indian Languages", description: "Hindi, Tamil, Malayalam, and more — stories from every corner." },
   { id: "new-releases", title: "New Releases", description: "Fresh off the press — the latest additions to our catalog." },
   { id: "top-selling", title: "Top Selling Books", description: "Bestsellers and steady favorites flying off the shelf." },
-  { id: "wfp", title: "WFP", description: "WhiteFalcon Publishing originals and partner highlights." },
+  { id: "wfp", title: "WFP", description: "WritersDesk Publishing originals and partner highlights." },
   { id: "most-read", title: "Most Read", description: "Titles our community opens again and again." },
   { id: "editors-picks", title: "Editor's Picks", description: "What our editorial team is reading this season." },
   { id: "award-winners", title: "Award Winners", description: "Recognized excellence — prize lists and critical acclaim." },

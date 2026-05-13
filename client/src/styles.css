@@ -40,7 +40,7 @@
   --font-sans: var(--font-sans);
 }
 
-/* WhiteFalcon-style deep navy + violet accent (DARK by default) */
+/* WritersDesk-style deep navy + violet accent (DARK by default) */
 :root {
   --radius: 0.75rem;
   --font-display: "Playfair Display", "Fraunces", ui-serif, Georgia, serif;

@@ -44,7 +44,7 @@ export const Route = createFileRoute("/books")({
   validateSearch: (raw: Record<string, unknown>): BooksSearch => parseSearch(raw),
   component: BooksPage,
   head: () => ({
-    meta: [{ title: "Books — WhiteFalcon Publishing" }],
+    meta: [{ title: "Books — WritersDesk Publishing" }],
   }),
 });
 
@@ -94,7 +94,7 @@ function BooksPage() {
             </>
           ) : (
             <>
-              All <span className="gradient-brand-text">books</span>
+              <span className="gradient-brand-text">Books</span> Store
             </>
           )
         }

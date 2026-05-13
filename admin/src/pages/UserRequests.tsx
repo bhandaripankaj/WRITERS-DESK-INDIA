@@ -35,7 +35,7 @@ function UserRequests() {
     <div className="dashboard">
       <nav className="dashboard-navbar">
         <div className="navbar-brand">
-          <h1>Writers Desk Admin</h1>
+          <h1>📚 Writers Desk Admin</h1>
         </div>
         <div className="navbar-content">
           <span className="user-info">Welcome, {user?.name}!</span>

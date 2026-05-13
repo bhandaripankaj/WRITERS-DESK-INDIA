@@ -27,7 +27,7 @@ export const getBookById = async (req, res) => {
 
 export const createBook = async (req, res) => {
   try {
-    const { title, author, description, price, category, isbn, publishDate, publisher, pages, language, stock, status } = req.body
+    const { title, author, subject, description, price, categories, collections, cover, isbn, publishDate, publisher, pages, language, stock, status } = req.body
 
     if (!title || !author || !price) {
       return res.status(400).json({ message: 'Title, author, and price are required' })
@@ -36,9 +36,12 @@ export const createBook = async (req, res) => {
     const book = new Book({
       title,
       author,
+      subject,
       description,
       price,
-      category,
+      categories: categories || [],
+      collections: collections || [],
+      cover,
       isbn,
       publishDate,
       publisher,

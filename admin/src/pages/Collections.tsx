@@ -1,63 +1,117 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { collectionAPI } from '../services/api'
 import '../styles/ManagementPages.css'
 
 interface Collection {
-  id: string
+  _id: string
   name: string
   description: string
-  bookCount: number
+  icon?: string
   createdAt: string
 }
 
 function Collections() {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
-  const [collections, setCollections] = useState<Collection[]>([
-    { id: '1', name: 'Best Sellers', description: 'Top selling books', bookCount: 25, createdAt: '2025-01-10' },
-    { id: '2', name: 'New Releases', description: 'Latest books', bookCount: 12, createdAt: '2025-01-18' }
-  ])
+  const [collections, setCollections] = useState<Collection[]>([])
+  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [formData, setFormData] = useState({ name: '', description: '' })
+  const [formData, setFormData] = useState({ name: '', description: '', icon: '' })
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
 
-  const handleAddCollection = () => {
-    if (formData.name.trim()) {
+  useEffect(() => {
+    fetchCollections()
+  }, [])
+
+  const fetchCollections = async () => {
+    try {
+      const response = await collectionAPI.getAll()
+      setCollections(response.data)
+    } catch (error) {
+      console.error('Error fetching collections:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleAddCollection = async () => {
+    if (!formData.name.trim()) return
+
+    try {
+      let iconUrl = formData.icon
+      
+      // Handle file upload (for now, convert to base64)
+      if (selectedFile) {
+        const base64 = await convertFileToBase64(selectedFile)
+        iconUrl = base64
+      }
+
+      const collectionData = {
+        ...formData,
+        icon: iconUrl
+      }
+
       if (editingId) {
-        setCollections(collections.map(c => 
-          c.id === editingId ? { ...c, name: formData.name, description: formData.description } : c
-        ))
+        await collectionAPI.update(editingId, collectionData)
         setEditingId(null)
       } else {
-        setCollections([...collections, {
-          id: Date.now().toString(),
-          name: formData.name,
-          description: formData.description,
-          bookCount: 0,
-          createdAt: new Date().toISOString().split('T')[0]
-        }])
+        await collectionAPI.create(collectionData)
       }
-      setFormData({ name: '', description: '' })
+      setFormData({ name: '', description: '', icon: '' })
+      setSelectedFile(null)
       setShowForm(false)
+      fetchCollections()
+    } catch (error) {
+      console.error('Error saving collection:', error)
+    }
+  }
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = error => reject(error)
+    })
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setSelectedFile(file)
     }
   }
 
   const handleEdit = (collection: Collection) => {
-    setFormData({ name: collection.name, description: collection.description })
-    setEditingId(collection.id)
+    setFormData({ 
+      name: collection.name, 
+      description: collection.description || '', 
+      icon: collection.icon || ''
+    })
+    setSelectedFile(null)
+    setEditingId(collection._id)
     setShowForm(true)
   }
 
-  const handleDelete = (id: string) => {
-    setCollections(collections.filter(c => c.id !== id))
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this collection?')) {
+      try {
+        await collectionAPI.delete(id)
+        fetchCollections()
+      } catch (error) {
+        console.error('Error deleting collection:', error)
+      }
+    }
   }
 
   return (
     <div className="dashboard">
       <nav className="dashboard-navbar">
         <div className="navbar-brand">
-          <h1>Writers Desk Admin</h1>
+          <h1>📚 Writers Desk Admin</h1>
         </div>
         <div className="navbar-content">
           <span className="user-info">Welcome, {user?.name}!</span>
@@ -82,7 +136,8 @@ function Collections() {
             <div className="page-header">
               <h2>Collections Management</h2>
               <button className="btn-primary" onClick={() => {
-                setFormData({ name: '', description: '' })
+                setFormData({ name: '', description: '', icon: '' })
+                setSelectedFile(null)
                 setEditingId(null)
                 setShowForm(!showForm)
               }}>
@@ -100,8 +155,26 @@ function Collections() {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="form-input"
             />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="form-input"
+            />
+            {selectedFile && (
+              <div className="file-preview">
+                <p>Selected: {selectedFile.name}</p>
+                <img src={URL.createObjectURL(selectedFile)} alt="Preview" style={{ maxWidth: '100px', maxHeight: '100px' }} />
+              </div>
+            )}
+            {!selectedFile && formData.icon && (
+              <div className="file-preview">
+                <p>Current Icon:</p>
+                <img src={formData.icon} alt="Current icon" style={{ maxWidth: '100px', maxHeight: '100px' }} />
+              </div>
+            )}
             <textarea
-              placeholder="Description"
+              placeholder="Description (optional)"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="form-textarea"
@@ -113,7 +186,8 @@ function Collections() {
               <button className="btn-secondary" onClick={() => {
                 setShowForm(false)
                 setEditingId(null)
-                setFormData({ name: '', description: '' })
+                setFormData({ name: '', description: '', icon: '' })
+                setSelectedFile(null)
               }}>
                 Cancel
               </button>
@@ -121,32 +195,48 @@ function Collections() {
           </div>
         )}
 
-        <div className="table-container">
-          <table className="management-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Books</th>
-                <th>Created At</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {collections.map(collection => (
-                <tr key={collection.id}>
-                  <td>{collection.name}</td>
-                  <td>{collection.description}</td>
-                  <td>{collection.bookCount}</td>
-                  <td>{collection.createdAt}</td>
-                  <td className="action-buttons">
-                    <button className="btn-sm" onClick={() => handleEdit(collection)}>Edit</button>
-                    <button className="btn-sm btn-danger" onClick={() => handleDelete(collection.id)}>Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            <div className="table-container">
+              <table className="management-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Icon</th>
+                    <th>Description</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={5}>Loading...</td>
+                    </tr>
+                  ) : collections.length === 0 ? (
+                    <tr>
+                      <td colSpan={5}>No collections found</td>
+                    </tr>
+                  ) : (
+                    collections.map(collection => (
+                      <tr key={collection._id}>
+                        <td>{collection.name}</td>
+                        <td>
+                          {collection.icon ? (
+                            <img src={collection.icon} alt={collection.name} style={{ maxWidth: '50px', maxHeight: '50px' }} />
+                          ) : (
+                            '-'
+                          )}
+                        </td>
+                        <td>{collection.description || '-'}</td>
+                        <td>{new Date(collection.createdAt).toLocaleDateString()}</td>
+                        <td className="action-buttons">
+                          <button className="btn-sm" onClick={() => handleEdit(collection)}>Edit</button>
+                          <button className="btn-sm btn-danger" onClick={() => handleDelete(collection._id)}>Delete</button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </section>
         </main>

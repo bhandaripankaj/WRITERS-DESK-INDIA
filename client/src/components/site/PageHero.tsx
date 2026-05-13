@@ -7,9 +7,9 @@ export function PageHero({ eyebrow, title, description }: { eyebrow: string; tit
       <div className="absolute inset-0 -z-10" style={{ background: "var(--gradient-hero)" }} />
       <div className="absolute inset-0 -z-10 grain opacity-30" />
       <div className="container-wide pt-20 pb-14 sm:pt-24 sm:pb-20 md:pt-32 md:pb-28">
-        <motion.span initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="eyebrow">
+        {/* <motion.span initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="eyebrow">
           {eyebrow}
-        </motion.span>
+        </motion.span> */}
         <motion.h1
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}

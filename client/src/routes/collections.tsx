@@ -7,7 +7,7 @@ import { COLLECTIONS, previewBooksForCollection } from "@/data/books-catalog";
 export const Route = createFileRoute("/collections")({
   component: CollectionsPage,
   head: () => ({
-    meta: [{ title: "Collections — WhiteFalcon Publishing" }],
+    meta: [{ title: "Collections — WritersDesk Publishing" }],
   }),
 });
 

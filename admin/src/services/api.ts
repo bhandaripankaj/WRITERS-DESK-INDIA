@@ -29,6 +29,26 @@ export const authAPI = {
     apiClient.post('/auth/refresh')
 }
 
+export const categoryAPI = {
+  getAll: () => apiClient.get('/categories'),
+  getById: (id: string) => apiClient.get(`/categories/${id}`),
+  create: (data: any) => apiClient.post('/categories', data,{
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }),
+  update: (id: string, data: any) => apiClient.put(`/categories/${id}`, data),
+  delete: (id: string) => apiClient.delete(`/categories/${id}`)
+}
+
+export const collectionAPI = {
+  getAll: () => apiClient.get('/collections'),
+  getById: (id: string) => apiClient.get(`/collections/${id}`),
+  create: (data: any) => apiClient.post('/collections', data),
+  update: (id: string, data: any) => apiClient.put(`/collections/${id}`, data),
+  delete: (id: string) => apiClient.delete(`/collections/${id}`)
+}
+
 export const bookAPI = {
   getAll: () => apiClient.get('/books'),
   getById: (id: string) => apiClient.get(`/books/${id}`),

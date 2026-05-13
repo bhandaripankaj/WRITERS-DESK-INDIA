@@ -3,7 +3,7 @@ import { PageHero } from "@/components/site/PageHero";
 
 export const Route = createFileRoute("/resources")({
   component: Page,
-  head: () => ({ meta: [{ title: "Resources — WhiteFalcon Publishing" }] }),
+  head: () => ({ meta: [{ title: "Resources — WritersDesk Publishing" }] }),
 });
 
 const items = [

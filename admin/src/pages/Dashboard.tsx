@@ -1,47 +1,72 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
+import { bookAPI, categoryAPI, collectionAPI } from '../services/api'
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts'
 import '../styles/Dashboard.css'
 
 function Dashboard() {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
   const [books, setBooks] = useState<any[]>([])
+  const [categories, setCategories] = useState<any[]>([])
+  const [collections, setCollections] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const mockBooks = [
-    { _id: '1', title: 'Book 1', author: 'Author 1', price: 299, status: 'active' },
-    { _id: '2', title: 'Book 2', author: 'Author 2', price: 399, status: 'active' },
-    { _id: '3', title: 'Book 3', author: 'Author 3', price: 199, status: 'inactive' }
-  ]
-
   useEffect(() => {
-    setTimeout(() => {
-      setBooks(mockBooks)
-      setLoading(false)
-    }, 500)
+    fetchDashboardData()
   }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      const [booksRes, categoriesRes, collectionsRes] = await Promise.all([
+        bookAPI.getAll(),
+        categoryAPI.getAll(),
+        collectionAPI.getAll()
+      ])
+      setBooks(booksRes.data)
+      setCategories(categoriesRes.data)
+      setCollections(collectionsRes.data)
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+      setError('Failed to load dashboard data')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleLogout = () => {
     logout()
     navigate('/login')
   }
 
-  // Pie chart data
+  // Pie chart data for book status
   const pieData = [
     { name: 'Active', value: books.filter(b => b.status === 'active').length },
-    { name: 'Inactive', value: books.filter(b => b.status === 'inactive').length }
+    { name: 'Inactive', value: books.filter(b => b.status === 'inactive').length },
+    { name: 'Draft', value: books.filter(b => b.status === 'draft').length }
   ]
 
-  const COLORS = ['#3498db', '#e74c3c']
+  // Bar chart data for categories
+  const categoryData = categories.map(cat => ({
+    name: cat.name,
+    books: books.filter(book => book.categories.some((c: any) => c._id === cat._id)).length
+  }))
+
+  // Bar chart data for collections
+  const collectionData = collections.map(col => ({
+    name: col.name,
+    books: books.filter(book => book.collections.some((c: any) => c._id === col._id)).length
+  }))
+
+  const COLORS = ['#3498db', '#e74c3c', '#f39c12']
 
   return (
     <div className="dashboard">
       <nav className="dashboard-navbar">
         <div className="navbar-brand">
-          <h1>Writers Desk Admin</h1>
+          <h1>📚 Writers Desk Admin</h1>
         </div>
         <div className="navbar-content">
           <span className="user-info">Welcome, {user?.name}!</span>
@@ -77,12 +102,12 @@ function Dashboard() {
                 <p className="stat-value">{books.filter(b => b.status === 'active').length}</p>
               </div>
               <div className="stat-card">
-                <h3>Collections</h3>
-                <p className="stat-value">--</p>
+                <h3>Categories</h3>
+                <p className="stat-value">{categories.length}</p>
               </div>
               <div className="stat-card">
-                <h3>User Requests</h3>
-                <p className="stat-value">--</p>
+                <h3>Collections</h3>
+                <p className="stat-value">{collections.length}</p>
               </div>
             </div>
 
@@ -111,6 +136,44 @@ function Dashboard() {
                       <Tooltip />
                       <Legend />
                     </PieChart>
+                  </ResponsiveContainer>
+                )}
+              </section>
+
+              <section className="chart-section">
+                <h3>Books by Category</h3>
+                {loading ? (
+                  <p className="loading">Loading data...</p>
+                ) : categoryData.length === 0 ? (
+                  <p className="no-data">No categories found</p>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={categoryData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="books" fill="#3498db" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </section>
+
+              <section className="chart-section">
+                <h3>Books by Collection</h3>
+                {loading ? (
+                  <p className="loading">Loading data...</p>
+                ) : collectionData.length === 0 ? (
+                  <p className="no-data">No collections found</p>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={collectionData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="books" fill="#27ae60" />
+                    </BarChart>
                   </ResponsiveContainer>
                 )}
               </section>

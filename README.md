@@ -136,3 +136,11 @@ JWT_SECRET=your_secret_key_here
 - [ ] Analytics dashboard
 - [ ] Email notifications
 - [ ] Audit logs
+
+
+
+
+for icon - https://lucide.dev/icons
+color - #7C5CFF
+Stroke width - 1.75px
+width - 24 height - 24

@@ -72,7 +72,7 @@ export function Navbar() {
           </span>
           <span className="leading-tight min-w-0">
             <span className="block font-display text-[16px] sm:text-[18px] font-semibold tracking-tight truncate">
-              WhiteFalcon
+              WritersDesk
             </span>
             <span className="block text-[8px] sm:text-[9px] tracking-[0.28em] sm:tracking-[0.32em] text-muted-foreground -mt-0.5 truncate">
               PUBLISHING
