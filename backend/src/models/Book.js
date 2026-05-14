@@ -7,6 +7,11 @@ const bookSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+      slug: {
+        type: String,
+        required: true,
+        trim: true
+    },
     author: {
       type: String,
       required: true,
@@ -14,6 +19,7 @@ const bookSchema = new mongoose.Schema(
     },
     subject: {
       type: String,
+      required: true,
       trim: true
     },
     description: {
@@ -22,22 +28,24 @@ const bookSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      required: true,
+      required: false,
       min: 0
     },
     categories: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Category'
+      ref: 'Category',
+      required: true
     }],
     collections: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Collection'
+      ref: 'Collection',
+      required: true
     }],
     cover: {
       type: String,
-      default: null
+      required: true
     },
-    isbn: {
+    identificationNumber: {
       type: String,
       unique: true,
       sparse: true
@@ -72,5 +80,17 @@ const bookSchema = new mongoose.Schema(
     timestamps: true
   }
 )
+bookSchema.pre('save', function (next) {
 
+    if (this.title) {
+
+        this.slug = this.title
+            .trim()                  // remove extra spaces start/end
+            .toLowerCase()          // lowercase
+            .replace(/\s+/g, '-')   // spaces -> -
+            .replace(/[^\w-]/g, '') // remove special chars
+    }
+
+    next();
+});
 export default mongoose.model('Book', bookSchema)

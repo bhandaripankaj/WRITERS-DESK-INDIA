@@ -27,11 +27,11 @@ import {
 } from "lucide-react";
 import type { CategoryId } from "@/data/books-catalog";
 import { booksInCollection, CATEGORY_LABELS } from "@/data/books-catalog";
-import { categoryAPI } from "@/services/api";
+import { categoryAPI, collectionAPI, bookAPI } from "@/services/api";
 import heroBook from "@/assets/hero-book.png";
 import sarah from "@/assets/avatar-sarah.jpg";
 
-const API_IMAGE_URL = import.meta.env.VITE_IMAGE_URL || 'http://localhost:4000'
+const VITE_IMAGE_URL = import.meta.env.VITE_IMAGE_URL || 'http://localhost:4000'
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -83,6 +83,37 @@ interface FetchedCategory {
   name: string;
   description: string;
   icon?: string;
+  ranking?: number;
+}
+
+interface CollectionItem {
+  _id: string;
+  name: string;
+  slug: string;
+  description: string;
+  showHome: boolean;
+  ranking?: number;
+  bookCount?: number;
+  previewCovers?: string[];
+}
+
+interface Category {
+  _id: string;
+  name: string;
+}
+
+interface Collection {
+  _id: string;
+  name: string;
+}
+
+interface Book {
+  _id: string;
+  title: string;
+  author: string;
+  cover: string;
+  categories: Array<string | Category>;
+  collections: Array<string | Collection>;
 }
 
 const whyChooseUs = [
@@ -142,9 +173,6 @@ const readerTestimonials: ReaderTestimonial[] = [
   },
 ];
 
-const featuredHomeBooks = booksInCollection("featured").slice(0, 5);
-const mostReadHomeBooks = booksInCollection("most-read").slice(0, 5);
-
 const plans = [
   { name: "Basic", price: "$499", tag: "Perfect for first-time authors", features: ["Professional Editing", "eBook Publishing", "Standard Cover Design", "Global Distribution"], featured: false },
   { name: "Pro", price: "$799", tag: "Everything you need to succeed", features: ["Everything in Basic", "Print & eBook Publishing", "Premium Cover Design", "Marketing Support"], featured: true },
@@ -153,22 +181,49 @@ const plans = [
 
 function HomePage() {
   const [categories, setCategories] = useState<FetchedCategory[]>([]);
+  const [collections, setCollections] = useState<CollectionItem[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
+  const featuredCollections = collections.filter(c => c.showHome); // limit to 10 or something
+
+  const featuredCollection = collections.find(c => c.slug === 'featured');
+  const mostReadCollection = collections.find(c => c.slug === 'most-read');
+
+  const featuredBooks = books.filter(b => 
+    b.collections.some(col => (typeof col === 'string' ? col : col._id) === featuredCollection?._id)
+  ).slice(0, 5);
+
+  const mostReadBooks = books.filter(b => 
+    b.collections.some(col => (typeof col === 'string' ? col : col._id) === mostReadCollection?._id)
+  ).slice(0, 5);
+
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const data = await categoryAPI.getAll();
-        setCategories(Array.isArray(data) ? data : data.categories || []);
+        const [categoriesData, collectionsData, booksData] = await Promise.all([
+          categoryAPI.getAll(),
+          collectionAPI.getAll(),
+          bookAPI.getAll(),
+        ]);
+        const categoriesList: FetchedCategory[] = Array.isArray(categoriesData) ? categoriesData : categoriesData.categories || [];
+        categoriesList.sort((a, b) => (a.ranking ?? 0) - (b.ranking ?? 0));
+        const collectionsList: CollectionItem[] = Array.isArray(collectionsData) ? [...collectionsData] : [];
+        collectionsList.sort((a, b) => (a.ranking ?? 0) - (b.ranking ?? 0));
+        setCategories(categoriesList);
+        setCollections(collectionsList);
+        setBooks(booksData);
       } catch (error) {
-        console.error('Failed to fetch categories:', error);
+        console.error('Failed to fetch data:', error);
         setCategories([]);
+        setCollections([]);
+        setBooks([]);
       } finally {
         setCategoriesLoading(false);
       }
     };
 
-    fetchCategories();
+    fetchData();
   }, []);
 
   return (
@@ -328,7 +383,7 @@ function HomePage() {
                     <div className="h-11 w-11 shrink-0 grid place-items-center rounded-lg bg-[#7C5CFF]/18">
                       {c.icon ? (
                         <img
-                          src={`${API_IMAGE_URL}/${c.icon}`}
+                          src={`${VITE_IMAGE_URL}/${c.icon}`}
                           alt={c.name}
                           className="h-5 w-5 sm:h-6 sm:w-6 object-contain"
                         />
@@ -354,7 +409,7 @@ function HomePage() {
           </section>
 
           {/* FEATURED BOOKS */}
-          <section id="books" className="container-wide py-10 sm:py-12 scroll-mt-24 min-w-0">
+          {/* <section id="books" className="container-wide py-10 sm:py-12 scroll-mt-24 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 text-center sm:text-left min-w-0">
               <div className="min-w-0">
                 <h2 className="mt-3 font-display text-[clamp(1.5rem,5vw,2.6rem)] balance">Featured Books</h2>
@@ -362,13 +417,15 @@ function HomePage() {
                   Start with our highlighted titles — tap interest on any book and we will follow up with details.
                 </p>
               </div>
-              <Link to="/books" search={{ collection: "featured" }} className="btn-outline !h-10 !px-4 shrink-0 self-center sm:self-auto">
-                View all <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              {featuredCollection && (
+                <Link to="/books" search={{ collection: featuredCollection._id }} className="btn-outline !h-10 !px-4 shrink-0 self-center sm:self-auto">
+                  View all <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              )}
             </div>
             <div className="mt-8 sm:mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-              {featuredHomeBooks.map((b) => (
-                <div key={b.id} className="group flex flex-col min-w-0">
+              {featuredBooks.map((b) => (
+                <div key={b._id} className="group flex flex-col min-w-0">
                   <div className="relative overflow-hidden rounded-lg border border-border aspect-[2/3] bg-surface">
                     <img
                       src={b.cover}
@@ -379,21 +436,18 @@ function HomePage() {
                   </div>
                   <div className="mt-3 flex-1 flex flex-col">
                     <p className="font-display text-[13px] sm:text-sm leading-snug line-clamp-2">{b.title}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{CATEGORY_LABELS[b.categories[0]]}</p>
-                    <Link
-                      to="/contact"
-                      className="mt-3 w-full text-center btn-outline !h-9 !text-xs py-0"
-                    >
+                    <p className="text-xs text-muted-foreground mt-0.5">{b.author}</p>
+                    <Link to="/contact" className="mt-3 w-full text-center btn-outline !h-9 !text-xs py-0">
                       I&apos;m Interested
                     </Link>
                   </div>
                 </div>
               ))}
             </div>
-          </section>
+          </section> */}
 
           {/* MOST READ */}
-          <section id="most-read" className="container-wide py-10 sm:py-12 scroll-mt-24 border-t border-border/60 min-w-0">
+          {/* <section id="most-read" className="container-wide py-10 sm:py-12 scroll-mt-24 border-t border-border/60 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 text-center sm:text-left min-w-0">
               <div className="min-w-0">
                 <h2 className="mt-3 font-display text-[clamp(1.5rem,5vw,2.6rem)] balance">Most Read Books</h2>
@@ -401,13 +455,15 @@ function HomePage() {
                   Titles readers return to most often — open the full shelf to browse with category filters.
                 </p>
               </div>
-              <Link to="/books" search={{ collection: "most-read" }} className="btn-outline !h-10 !px-4 shrink-0 self-center sm:self-auto">
-                View all <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              {mostReadCollection && (
+                <Link to="/books" search={{ collection: mostReadCollection._id }} className="btn-outline !h-10 !px-4 shrink-0 self-center sm:self-auto">
+                  View all <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              )}
             </div>
             <div className="mt-8 sm:mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-              {mostReadHomeBooks.map((b) => (
-                <div key={b.id} className="group flex flex-col min-w-0">
+              {mostReadBooks.map((b) => (
+                <div key={b._id} className="group flex flex-col min-w-0">
                   <div className="relative overflow-hidden rounded-lg border border-border aspect-[2/3] bg-surface">
                     <img
                       src={b.cover}
@@ -418,7 +474,7 @@ function HomePage() {
                   </div>
                   <div className="mt-3 flex-1 flex flex-col">
                     <p className="font-display text-[13px] sm:text-sm leading-snug line-clamp-2">{b.title}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{CATEGORY_LABELS[b.categories[0]]}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{b.author}</p>
                     <Link
                       to="/contact"
                       className="mt-3 w-full text-center btn-outline !h-9 !text-xs py-0"
@@ -429,7 +485,55 @@ function HomePage() {
                 </div>
               ))}
             </div>
-          </section>
+          </section> */}
+
+          {/* FEATURED COLLECTIONS */}
+          {featuredCollections.map((collection, index) => {
+            const collectionBooks = books.filter(b => 
+              b.collections.some(col => (typeof col === 'string' ? col : col._id) === collection._id)
+            ).slice(0, 5); // limit to 5 books per collection
+
+            return (
+              <section key={collection._id} id={`collection-${collection.slug}`} className="container-wide py-10 sm:py-12 scroll-mt-24 border-t border-border/60 min-w-0">
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 text-center sm:text-left min-w-0">
+                  <div className="min-w-0">
+                    <h2 className="mt-3 font-display text-[clamp(1.5rem,5vw,2.6rem)] balance">{collection.name}</h2>
+                    <p className="mt-2 text-sm text-muted-foreground max-w-xl">
+                      {collection.description || 'Explore books in this curated collection.'}
+                    </p>
+                  </div>
+                  <Link to="/books" search={{ collection: collection._id }} className="btn-outline !h-10 !px-4 shrink-0 self-center sm:self-auto">
+                    View all <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+                {collectionBooks.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-16">No books in this collection yet.</p>
+                ) : (
+                  <div className="mt-8 sm:mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                    {collectionBooks.map((b) => (
+                      <div key={b._id} className="group flex flex-col min-w-0">
+                        <div className="relative overflow-hidden rounded-lg border border-border aspect-[2/3] bg-surface">
+                          <img
+                            src={VITE_IMAGE_URL+ b.cover}
+                            alt={b.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className="mt-3 flex-1 flex flex-col">
+                          <p className="font-display text-[13px] sm:text-sm leading-snug line-clamp-2">{b.title}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{b.author}</p>
+                          <Link to="/contact" className="mt-3 w-full text-center btn-outline !h-9 !text-xs py-0">
+                            I&apos;m Interested
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })}
 
           {/* WHY CHOOSE US */}
           <section className="container-wide py-12 sm:py-16 min-w-0">

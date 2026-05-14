@@ -2,7 +2,35 @@ import Collection from '../models/Collection.js'
 
 export const getAllCollections = async (req, res) => {
   try {
-    const collections = await Collection.find().sort({ createdAt: -1 })
+    const collections = await Collection.aggregate([
+      {
+        $lookup: {
+          from: 'books',
+          localField: '_id',
+          foreignField: 'collections',
+          as: 'books'
+        }
+      },
+      {
+        $addFields: {
+          bookCount: { $size: '$books' },
+          previewCovers: {
+            $map: {
+              input: { $slice: ['$books', 4] },
+              as: 'book',
+              in: '$$book.cover'
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          books: 0
+        }
+      },
+      { $sort: { ranking: 1, createdAt: -1 } }
+    ])
+
     res.json(collections)
   } catch (error) {
     console.error('Error fetching collections:', error)
@@ -27,7 +55,7 @@ export const getCollectionById = async (req, res) => {
 
 export const createCollection = async (req, res) => {
   try {
-    const { name, description } = req.body
+    const { name, description, showHome, ranking } = req.body
 
     if (!name) {
       return res.status(400).json({ message: 'Name is required' })
@@ -35,7 +63,9 @@ export const createCollection = async (req, res) => {
 
     const collection = new Collection({
       name,
-      description
+      description,
+      showHome: showHome || false,
+      ranking: Number(ranking) || 0,
     })
 
     await collection.save()
@@ -56,7 +86,11 @@ export const createCollection = async (req, res) => {
 
 export const updateCollection = async (req, res) => {
   try {
-    const updates = req.body
+    const updates = { ...req.body }
+    if (updates.ranking !== undefined) {
+      updates.ranking = Number(updates.ranking) || 0
+    }
+
     const collection = await Collection.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true })
 
     if (!collection) {

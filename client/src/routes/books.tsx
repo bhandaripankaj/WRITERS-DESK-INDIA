@@ -3,25 +3,16 @@ import { ArrowLeft } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import {
-  CATEGORY_IDS,
-  CATEGORY_LABELS,
-  type CategoryId,
-  COLLECTIONS,
-  getCollectionMeta,
-  isCategoryId,
-  booksForCollectionAndCategories,
-} from "@/data/books-catalog";
-
+import { useEffect, useState } from "react";
+import { bookAPI, categoryAPI, collectionAPI } from "@/services/api";
+const VITE_IMAGE_URL = import.meta.env.VITE_IMAGE_URL;
 type BooksSearch = {
   collection?: string;
   categories?: string;
 };
 
 function parseSearch(raw: Record<string, unknown>): BooksSearch {
-  const col = raw.collection;
-  const collection =
-    typeof col === "string" && col.length > 0 && COLLECTIONS.some((c) => c.id === col) ? col : undefined;
+  const collection = typeof raw.collection === "string" && raw.collection.length > 0 ? raw.collection : undefined;
 
   const cat = raw.categories;
   let categories: string | undefined;
@@ -29,15 +20,36 @@ function parseSearch(raw: Record<string, unknown>): BooksSearch {
     const parts = cat
       .split(",")
       .map((s) => s.trim())
-      .filter(isCategoryId);
+      .filter((s) => s.length > 0);
     categories = parts.length > 0 ? parts.join(",") : undefined;
   }
+
   return { collection, categories };
 }
 
-function categoriesFromSearch(categories: string | undefined): CategoryId[] {
+function categoriesFromSearch(categories: string | undefined): string[] {
   if (!categories?.trim()) return [];
-  return categories.split(",").map((s) => s.trim()).filter(isCategoryId);
+  return categories.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
+}
+
+interface Category {
+  _id: string;
+  name: string;
+}
+
+interface Collection {
+  _id: string;
+  name: string;
+  description?: string;
+}
+
+interface Book {
+  _id: string;
+  title: string;
+  author: string;
+  cover: string;
+  categories: Array<string | Category>;
+  collections: Array<string | Collection>;
 }
 
 export const Route = createFileRoute("/books")({
@@ -51,12 +63,71 @@ export const Route = createFileRoute("/books")({
 function BooksPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
-  const collection = search.collection;
-  const selected = categoriesFromSearch(search.categories);
-  const meta = getCollectionMeta(collection);
-  const books = booksForCollectionAndCategories(collection, selected);
+  const collectionId = search.collection;
+  const selectedCategoryIds = categoriesFromSearch(search.categories);
 
-  const setCategories = (next: CategoryId[]) => {
+  const [books, setBooks] = useState<Book[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [booksData, categoriesData, collectionsData] = await Promise.all([
+          bookAPI.getAll(),
+          categoryAPI.getAll(),
+          collectionAPI.getAll(),
+        ]);
+
+        setBooks(booksData);
+        setCategories(categoriesData);
+        setCollections(collectionsData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const getCategoryName = (id: string) => categories.find((c) => c._id === id)?.name ?? id;
+  const getCollectionName = (id: string) => collections.find((c) => c._id === id)?.name ?? id;
+
+  const getBookCategoryNames = (book: Book) =>
+    book.categories
+      .map((category) => (typeof category === "string" ? getCategoryName(category) : category.name))
+      .filter(Boolean);
+
+  const getBookCollectionNames = (book: Book) =>
+    book.collections
+      .map((collection) => (typeof collection === "string" ? getCollectionName(collection) : collection.name))
+      .filter(Boolean);
+
+  const filteredBooks = books.filter((book) => {
+    if (collectionId) {
+      const bookCollectionIds = book.collections.map((collection) =>
+        typeof collection === "string" ? collection : collection._id
+      );
+      if (!bookCollectionIds.includes(collectionId)) return false;
+    }
+
+    if (selectedCategoryIds.length > 0) {
+      const bookCategoryIds = book.categories.map((category) =>
+        typeof category === "string" ? category : category._id
+      );
+      const matches = selectedCategoryIds.some((categoryId) => bookCategoryIds.includes(categoryId));
+      if (!matches) return false;
+    }
+
+    return true;
+  });
+
+  const selectedCollection = collections.find((c) => c._id === collectionId);
+
+  const updateCategorySearch = (next: string[]) => {
     navigate({
       to: "/books",
       search: (prev) => ({
@@ -66,11 +137,11 @@ function BooksPage() {
     });
   };
 
-  const toggleCategory = (id: CategoryId) => {
-    const set = new Set(selected);
+  const toggleCategory = (id: string) => {
+    const set = new Set(selectedCategoryIds);
     if (set.has(id)) set.delete(id);
     else set.add(id);
-    setCategories([...set]);
+    updateCategorySearch([...set]);
   };
 
   const clearCategories = () => {
@@ -86,11 +157,11 @@ function BooksPage() {
   return (
     <>
       <PageHero
-        eyebrow={meta ? "Collection" : "Library"}
+        eyebrow={selectedCollection ? "Collection" : "Library"}
         title={
-          meta ? (
+          selectedCollection ? (
             <>
-              <span className="gradient-brand-text">{meta.title}</span>
+              <span className="gradient-brand-text">{selectedCollection.name}</span>
             </>
           ) : (
             <>
@@ -99,7 +170,7 @@ function BooksPage() {
           )
         }
         description={
-          meta?.description ??
+          selectedCollection?.description ??
           "Browse the full catalog. Pick one or more categories below to narrow the list — by default every title in the current shelf is shown."
         }
       />
@@ -110,10 +181,10 @@ function BooksPage() {
             <ArrowLeft className="h-4 w-4" />
             Back to collections
           </Link>
-          {collection && (
+          {collectionId && (
             <p className="text-xs text-muted-foreground sm:text-right sm:max-w-md min-w-0 break-words">
-              Showing books in <span className="text-foreground font-medium">{meta?.title ?? collection}</span>
-              {selected.length > 0 ? ` · filtered by ${selected.map((c) => CATEGORY_LABELS[c]).join(", ")}` : ""}.
+              Showing books in <span className="text-foreground font-medium">{selectedCollection?.name ?? collectionId}</span>
+              {selectedCategoryIds.length > 0 ? ` · filtered by ${selectedCategoryIds.map(getCategoryName).join(", ")}` : ""}.
             </p>
           )}
         </div>
@@ -133,30 +204,32 @@ function BooksPage() {
             </div>
           </div>
           <div className="mt-4 sm:mt-5 flex flex-wrap gap-x-3 gap-y-2.5 sm:gap-x-5 sm:gap-y-3">
-            {CATEGORY_IDS.map((id) => (
-              <div key={id} className="flex items-center gap-2 min-h-9 min-w-0">
+            {categories.map((category) => (
+              <div key={category._id} className="flex items-center gap-2 min-h-9 min-w-0">
                 <Checkbox
-                  id={`cat-${id}`}
-                  checked={selected.includes(id)}
-                  onCheckedChange={() => toggleCategory(id)}
+                  id={`cat-${category._id}`}
+                  checked={selectedCategoryIds.includes(category._id)}
+                  onCheckedChange={() => toggleCategory(category._id)}
                 />
-                <Label htmlFor={`cat-${id}`} className="text-xs sm:text-sm font-normal cursor-pointer leading-snug">
-                  {CATEGORY_LABELS[id]}
+                <Label htmlFor={`cat-${category._id}`} className="text-xs sm:text-sm font-normal cursor-pointer leading-snug">
+                  {category.name}
                 </Label>
               </div>
             ))}
           </div>
         </div>
 
-        {books.length === 0 ? (
+        {loading ? (
+          <p className="text-sm text-muted-foreground text-center py-16">Loading books...</p>
+        ) : filteredBooks.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-16">No books match these filters. Try clearing categories.</p>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 md:gap-6">
-            {books.map((b) => (
-              <div key={b.id} className="group flex flex-col min-w-0">
+            {filteredBooks.map((b) => (
+              <div key={b._id} className="group flex flex-col min-w-0">
                 <div className="relative overflow-hidden rounded-lg border border-border aspect-[2/3] bg-surface">
                   <img
-                    src={b.cover}
+                    src={VITE_IMAGE_URL + b.cover}
                     alt={b.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
@@ -166,7 +239,7 @@ function BooksPage() {
                   <p className="font-display text-[13px] sm:text-sm leading-snug line-clamp-2">{b.title}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">{b.author}</p>
                   <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1">
-                    {b.categories.map((c) => CATEGORY_LABELS[c]).join(" · ")}
+                    {getBookCategoryNames(b).join(" · ")}
                   </p>
                   <Link to="/contact" className="mt-3 w-full text-center btn-outline !h-9 !text-xs py-0">
                     I&apos;m Interested

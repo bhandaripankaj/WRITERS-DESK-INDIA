@@ -1,7 +1,7 @@
 import Category from '../models/Category.js'
 export const getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.find().sort({ createdAt: -1 })
+    const categories = await Category.find().sort({ ranking: 1, createdAt: -1 })
     res.json(categories)
   } catch (error) {
     console.error('Error fetching categories:', error)
@@ -26,7 +26,7 @@ export const getCategoryById = async (req, res) => {
 export const createCategory = async (req, res) => {
   try {
     console.log('Received category creation request with data:', req.body)
-    const { name, description } = req.body
+    const { name, description, ranking } = req.body
 
     if (!name) {
       return res.status(400).json({ message: 'Name is required' })
@@ -38,7 +38,8 @@ export const createCategory = async (req, res) => {
     const category = new Category({
       name,
       description,
-      icon
+      icon,
+      ranking: Number(ranking) || 0,
     })
 
     await category.save()
@@ -59,7 +60,10 @@ export const createCategory = async (req, res) => {
 
 export const updateCategory = async (req, res) => {
   try {
-    const updates = req.body
+    const updates = { ...req.body }
+    if (updates.ranking !== undefined) {
+      updates.ranking = Number(updates.ranking) || 0
+    }
     const category = await Category.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true })
 
     if (!category) {

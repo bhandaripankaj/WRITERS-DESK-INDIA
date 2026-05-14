@@ -43,6 +43,7 @@ function Layout({ children }: LayoutProps) {
             <li><button onClick={() => navigate('/collections')} className={isActive('/collections') ? 'active' : ''}><span className="menu-icon">📚</span> Collections</button></li>
             <li><button onClick={() => navigate('/books')} className={isActive('/books') ? 'active' : ''}><span className="menu-icon">📖</span> Books</button></li>
             <li><button onClick={() => navigate('/user-requests')} className={isActive('/user-requests') ? 'active' : ''}><span className="menu-icon">👥</span> User Requests</button></li>
+                        <li><button onClick={() => navigate('/subscribers')} className={isActive('/subscribers') ? 'active' : ''}><span className="menu-icon">👥</span> Subscribers & Newsletters</button></li>
             <li><button onClick={() => navigate('/settings')} className={isActive('/settings') ? 'active' : ''}><span className="menu-icon">⚙️</span> Settings</button></li>
           </ul>
         </aside>

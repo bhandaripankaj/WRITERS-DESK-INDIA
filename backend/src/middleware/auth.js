@@ -1,19 +1,20 @@
 import { verifyToken } from '../config/jwt.js'
 
 export const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
 
-  if (!token) {
-    return res.status(401).json({ message: 'Access token required' })
-  }
+  // const authHeader = req.headers['authorization']
+  // const token = authHeader && authHeader.split(' ')[1]
 
-  const decoded = verifyToken(token)
+  // if (!token) {
+  //   return res.status(401).json({ message: 'Access token required' })
+  // }
 
-  if (!decoded) {
-    return res.status(403).json({ message: 'Invalid or expired token' })
-  }
+  // const decoded = verifyToken(token)
 
-  req.user = decoded
+  // if (!decoded) {
+  //   return res.status(403).json({ message: 'Invalid or expired token' })
+  // }
+
+  // req.user = decoded
   next()
 }

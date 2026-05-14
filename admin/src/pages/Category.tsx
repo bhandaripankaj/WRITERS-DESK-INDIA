@@ -10,6 +10,7 @@ interface Category {
   name: string
   description: string
   icon?: string
+  ranking: number
   createdAt: string
 }
 
@@ -19,9 +20,20 @@ function Category() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [formData, setFormData] = useState({ name: '', description: '', image: '' })
+  const [formData, setFormData] = useState({ name: '', description: '', image: '', ranking: 0 })
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!formData.name.trim()) newErrors.name = 'Name is required'
+    if (!selectedFile && !formData.image) newErrors.image = 'Icon image is required'
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   useEffect(() => {
     fetchCategories()
@@ -39,13 +51,14 @@ function Category() {
   }
 
  const handleAddCategory = async () => {
-  if (!formData.name.trim()) return
+  if (!validateForm()) return
 
   try {
     const data = new FormData()
 
     data.append('name', formData.name)
     data.append('description', formData.description)
+    data.append('ranking', String(formData.ranking))
 
     // IMPORTANT
     if (selectedFile) {
@@ -62,11 +75,13 @@ function Category() {
     setFormData({
       name: '',
       description: '',
-      image: ''
+      image: '',
+      ranking: 0,
     })
 
     setSelectedFile(null)
     setShowForm(false)
+    setErrors({})
 
     fetchCategories()
   } catch (error) {
@@ -94,7 +109,8 @@ function Category() {
     setFormData({ 
       name: category.name, 
       description: category.description || '', 
-      image: category.icon || '' 
+      image: category.icon || '',
+      ranking: category.ranking || 0,
     })
     setSelectedFile(null)
     setEditingId(category._id)
@@ -120,6 +136,7 @@ function Category() {
           setFormData({ name: '', description: '', image: '' })
           setSelectedFile(null)
           setEditingId(null)
+          setErrors({})
           setShowForm(!showForm)
         }}>
           + Add Category
@@ -136,12 +153,14 @@ function Category() {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="form-input"
                 />
+                {errors.name && <div className="error-message">{errors.name}</div>}
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleFileChange}
                   className="form-input"
                 />
+                {errors.image && <div className="error-message">{errors.image}</div>}
                 {selectedFile && (
                   <div className="file-preview">
                     <p>Selected: {selectedFile.name}</p>
@@ -160,6 +179,14 @@ function Category() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="form-textarea"
                 ></textarea>
+                <input
+                  type="number"
+                  placeholder="Ranking"
+                  value={formData.ranking}
+                  onChange={(e) => setFormData({ ...formData, ranking: Number(e.target.value) })}
+                  className="form-input"
+                  min={0}
+                />
                 <div className="form-buttons">
                   <button className="btn-success" onClick={handleAddCategory}>
                     {editingId ? 'Update' : 'Add'}
@@ -169,6 +196,7 @@ function Category() {
                     setEditingId(null)
                     setFormData({ name: '', description: '', image: '' })
                     setSelectedFile(null)
+                    setErrors({})
                   }}>
                     Cancel
                   </button>
@@ -181,6 +209,7 @@ function Category() {
                 <thead>
                   <tr>
                     <th>Name</th>
+                    <th>Rank</th>
                     <th>Icon</th>
                     <th>Description</th>
                     <th>Created At</th>
@@ -200,6 +229,7 @@ function Category() {
                     categories.map(category => (
                       <tr key={category._id}>
                         <td>{category.name}</td>
+                        <td>{category.ranking}</td>
                         <td>
                           {category.icon ? (
                             <img src={VITE_IMAGE_URL + category.icon} alt={category.name} style={{ maxWidth: '50px', maxHeight: '50px', borderRadius: '4px' }} />

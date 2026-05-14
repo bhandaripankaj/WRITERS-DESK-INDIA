@@ -63,6 +63,13 @@
   font-family: inherit;
 }
 
+.error-message {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: -10px;
+  margin-bottom: 15px;
+}
+
 .form-textarea {
   resize: vertical;
   min-height: 100px;

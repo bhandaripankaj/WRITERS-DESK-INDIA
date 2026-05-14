@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { bookAPI, categoryAPI, collectionAPI } from '../services/api'
 import '../styles/ManagementPages.css'
-
+const VITE_IMAGE_URL = import.meta.env.VITE_IMAGE_URL
 interface Category {
   _id: string
   name: string
@@ -18,12 +18,16 @@ interface Book {
   _id: string
   title: string
   author: string
-  subject?: string
+  subject: string
+  description?: string
   price: number
   status: string
   categories: Category[]
   collections: Collection[]
-  cover?: string
+  cover: string
+  identificationNumber?: string
+  publishDate?: string
+  publisher?: string
   createdAt: string
 }
 
@@ -39,17 +43,36 @@ function Books() {
     title: '', 
     author: '', 
     subject: '',
+    description: '',
     price: '', 
     categories: [] as string[], 
     collections: [] as string[], 
     status: 'active',
-    cover: ''
+    cover: '',
+    identificationNumber: '',
+    publishDate: '',
+    publisher: ''
   })
   const [selectedCoverFile, setSelectedCoverFile] = useState<File | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
   const [showCollectionDropdown, setShowCollectionDropdown] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!formData.title.trim()) newErrors.title = 'Title is required'
+    if (!formData.author.trim()) newErrors.author = 'Author is required'
+    if (!formData.subject.trim()) newErrors.subject = 'Subject is required'
+    if (formData.categories.length === 0) newErrors.categories = 'At least one category is required'
+    if (formData.collections.length === 0) newErrors.collections = 'At least one collection is required'
+    if (!selectedCoverFile && !formData.cover) newErrors.cover = 'Cover image is required'
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   useEffect(() => {
     fetchData()
@@ -86,7 +109,7 @@ function Books() {
   }
 
   const handleAddBook = async () => {
-    if (!formData.title.trim() || !formData.author.trim() || !formData.price) return
+    if (!validateForm()) return
 
     try {
       let coverUrl = formData.cover
@@ -101,11 +124,15 @@ function Books() {
         title: formData.title,
         author: formData.author,
         subject: formData.subject,
-        price: parseFloat(formData.price),
+        description: formData.description,
+        price: parseFloat(formData.price) || 0,
         categories: formData.categories,
         collections: formData.collections,
         status: formData.status,
-        cover: coverUrl
+        cover: coverUrl,
+        identificationNumber: formData.identificationNumber,
+        publishDate: formData.publishDate ? new Date(formData.publishDate) : null,
+        publisher: formData.publisher
       }
 
       if (editingId) {
@@ -114,9 +141,10 @@ function Books() {
       } else {
         await bookAPI.create(bookData)
       }
-      setFormData({ title: '', author: '', subject: '', price: '', categories: [], collections: [], status: 'active', cover: '' })
+      setFormData({ title: '', author: '', subject: '', description: '', price: '', categories: [], collections: [], status: 'active', cover: '', identificationNumber: '', publishDate: '', publisher: '' })
       setSelectedCoverFile(null)
       setShowForm(false)
+      setErrors({})
       fetchData()
     } catch (error) {
       console.error('Error saving book:', error)
@@ -144,11 +172,15 @@ function Books() {
       title: book.title, 
       author: book.author, 
       subject: book.subject || '',
+      description: book.description || '',
       price: book.price.toString(),
       categories: book.categories.map(c => c._id),
       collections: book.collections.map(c => c._id),
       status: book.status,
-      cover: book.cover || ''
+      cover: book.cover || '',
+      identificationNumber: book.identificationNumber || '',
+      publishDate: book.publishDate ? new Date(book.publishDate).toISOString().split('T')[0] : '',
+      publisher: book.publisher || ''
     })
     setSelectedCoverFile(null)
     setEditingId(book._id)
@@ -233,9 +265,10 @@ function Books() {
       <div className="page-header">
         <h2>Books Management</h2>
         <button className="btn-primary" onClick={() => {
-          setFormData({ title: '', author: '', subject: '', price: '', categories: [], collections: [], status: 'active', cover: '' })
+          setFormData({ title: '', author: '', subject: '', description: '', price: '', categories: [], collections: [], status: 'active', cover: '', identificationNumber: '', publishDate: '', publisher: '' })
           setSelectedCoverFile(null)
           setEditingId(null)
+          setErrors({})
           setShowForm(!showForm)
         }}>
           + Add Book
@@ -252,6 +285,7 @@ function Books() {
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="form-input"
             />
+            {errors.title && <div className="error-message">{errors.title}</div>}
             <input
               type="text"
               placeholder="Author"
@@ -259,11 +293,40 @@ function Books() {
               onChange={(e) => setFormData({ ...formData, author: e.target.value })}
               className="form-input"
             />
+            {errors.author && <div className="error-message">{errors.author}</div>}
             <input
               type="text"
               placeholder="Subject"
               value={formData.subject}
               onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+              className="form-input"
+            />
+            {errors.subject && <div className="error-message">{errors.subject}</div>}
+            <textarea
+              placeholder="Description (optional)"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="form-textarea"
+            ></textarea>
+            <input
+              type="text"
+              placeholder="Identification Number (ISBN, etc.)"
+              value={formData.identificationNumber}
+              onChange={(e) => setFormData({ ...formData, identificationNumber: e.target.value })}
+              className="form-input"
+            />
+            <input
+              type="date"
+              placeholder="Publish Date"
+              value={formData.publishDate}
+              onChange={(e) => setFormData({ ...formData, publishDate: e.target.value })}
+              className="form-input"
+            />
+            <input
+              type="text"
+              placeholder="Publisher"
+              value={formData.publisher}
+              onChange={(e) => setFormData({ ...formData, publisher: e.target.value })}
               className="form-input"
             />
             <input
@@ -282,6 +345,7 @@ function Books() {
                 onChange={handleCoverFileChange}
                 className="form-input"
               />
+              {errors.cover && <div className="error-message">{errors.cover}</div>}
               {selectedCoverFile && (
                 <div className="file-preview">
                   <p>Selected: {selectedCoverFile.name}</p>
@@ -298,6 +362,7 @@ function Books() {
             
             <div className="form-group">
               <label>Categories:</label>
+              {errors.categories && <div className="error-message">{errors.categories}</div>}
               <div className="selected-items">
                 {formData.categories.map(catId => {
                   const category = categories.find(c => c._id === catId)
@@ -344,6 +409,7 @@ function Books() {
 
             <div className="form-group">
               <label>Collections:</label>
+              {errors.collections && <div className="error-message">{errors.collections}</div>}
               <div className="selected-items">
                 {formData.collections.map(colId => {
                   const collection = collections.find(c => c._id === colId)
@@ -404,11 +470,12 @@ function Books() {
               <button className="btn-secondary" onClick={() => {
                 setShowForm(false)
                 setEditingId(null)
-                setFormData({ title: '', author: '', subject: '', price: '', categories: [], collections: [], status: 'active', cover: '' })
+                setFormData({ title: '', author: '', subject: '', description: '', price: '', categories: [], collections: [], status: 'active', cover: '', identificationNumber: '', publishDate: '', publisher: '' })
                 setSelectedCoverFile(null)
                 setShowCategoryDropdown(false)
                 setShowCollectionDropdown(false)
                 setSearchTerm('')
+                setErrors({})
               }}>
                 Cancel
               </button>
@@ -445,7 +512,7 @@ function Books() {
                   <tr key={book._id}>
                     <td>
                       {book.cover ? (
-                        <img src={book.cover} alt={book.title} style={{ maxWidth: '50px', maxHeight: '50px', borderRadius: '4px' }} />
+                        <img src={VITE_IMAGE_URL + book.cover} alt={book.title} style={{ maxWidth: '50px', maxHeight: '50px', borderRadius: '4px' }} />
                       ) : (
                         '-'
                       )}

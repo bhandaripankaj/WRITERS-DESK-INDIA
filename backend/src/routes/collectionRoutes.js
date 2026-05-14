@@ -1,6 +1,7 @@
 import express from 'express'
 import { getAllCollections, getCollectionById, createCollection, updateCollection, deleteCollection } from '../controllers/collectionController.js'
 import { authenticateToken } from '../middleware/auth.js'
+import upload from '../config/multer.js'
 
 const router = express.Router()
 

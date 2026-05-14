@@ -8,7 +8,8 @@ interface Collection {
   _id: string
   name: string
   description: string
-  icon?: string
+  showHome: boolean
+  ranking: number
   createdAt: string
 }
 
@@ -18,9 +19,18 @@ function Collections() {
   const [collections, setCollections] = useState<Collection[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [formData, setFormData] = useState({ name: '', description: '', icon: '' })
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [formData, setFormData] = useState({ name: '', description: '', showHome: false, ranking: 0 })
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!formData.name.trim()) newErrors.name = 'Name is required'
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   useEffect(() => {
     fetchCollections()
@@ -38,20 +48,14 @@ function Collections() {
   }
 
   const handleAddCollection = async () => {
-    if (!formData.name.trim()) return
+    if (!validateForm()) return
 
     try {
-      let iconUrl = formData.icon
-      
-      // Handle file upload (for now, convert to base64)
-      if (selectedFile) {
-        const base64 = await convertFileToBase64(selectedFile)
-        iconUrl = base64
-      }
-
       const collectionData = {
-        ...formData,
-        icon: iconUrl
+        name: formData.name,
+        description: formData.description,
+        showHome: formData.showHome,
+        ranking: formData.ranking,
       }
 
       if (editingId) {
@@ -60,38 +64,23 @@ function Collections() {
       } else {
         await collectionAPI.create(collectionData)
       }
-      setFormData({ name: '', description: '', icon: '' })
-      setSelectedFile(null)
+
+      setFormData({ name: '', description: '', showHome: false, ranking: 0 })
       setShowForm(false)
+      setErrors({})
       fetchCollections()
     } catch (error) {
       console.error('Error saving collection:', error)
     }
   }
 
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = () => resolve(reader.result as string)
-      reader.onerror = error => reject(error)
-    })
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      setSelectedFile(file)
-    }
-  }
-
   const handleEdit = (collection: Collection) => {
     setFormData({ 
-      name: collection.name, 
-      description: collection.description || '', 
-      icon: collection.icon || ''
+      name: collection.name,
+      description: collection.description || '',
+      showHome: collection.showHome,
+      ranking: collection.ranking || 0,
     })
-    setSelectedFile(null)
     setEditingId(collection._id)
     setShowForm(true)
   }
@@ -112,9 +101,9 @@ function Collections() {
       <div className="page-header">
         <h2>Collections Management</h2>
         <button className="btn-primary" onClick={() => {
-          setFormData({ name: '', description: '', icon: '' })
-          setSelectedFile(null)
+          setFormData({ name: '', description: '', showHome: false })
           setEditingId(null)
+          setErrors({})
           setShowForm(!showForm)
         }}>
           + Add Collection
@@ -131,30 +120,30 @@ function Collections() {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="form-input"
             />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="form-input"
-            />
-            {selectedFile && (
-              <div className="file-preview">
-                <p>Selected: {selectedFile.name}</p>
-                <img src={URL.createObjectURL(selectedFile)} alt="Preview" style={{ maxWidth: '100px', maxHeight: '100px' }} />
-              </div>
-            )}
-            {!selectedFile && formData.icon && (
-              <div className="file-preview">
-                <p>Current Icon:</p>
-                <img src={formData.icon} alt="Current icon" style={{ maxWidth: '100px', maxHeight: '100px' }} />
-              </div>
-            )}
+            {errors.name && <div className="error-message">{errors.name}</div>}
             <textarea
               placeholder="Description (optional)"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="form-textarea"
             ></textarea>
+            <input
+              type="number"
+              placeholder="Ranking"
+              value={formData.ranking}
+              onChange={(e) => setFormData({ ...formData, ranking: Number(e.target.value) })}
+              className="form-input"
+              min={0}
+            />
+            <label>Show on Home Page:</label>
+            <select
+              value={formData.showHome ? 'yes' : 'no'}
+              onChange={(e) => setFormData({ ...formData, showHome: e.target.value === 'yes' })}
+              className="form-input"
+            >
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
             <div className="form-buttons">
               <button className="btn-success" onClick={handleAddCollection}>
                 {editingId ? 'Update' : 'Add'}
@@ -162,8 +151,8 @@ function Collections() {
               <button className="btn-secondary" onClick={() => {
                 setShowForm(false)
                 setEditingId(null)
-                setFormData({ name: '', description: '', icon: '' })
-                setSelectedFile(null)
+                setFormData({ name: '', description: '', showHome: false, ranking: 0 })
+                setErrors({})
               }}>
                 Cancel
               </button>
@@ -176,8 +165,9 @@ function Collections() {
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Icon</th>
+                    <th>Rank</th>
                     <th>Description</th>
+                    <th>Show on Home</th>
                     <th>Created At</th>
                     <th>Actions</th>
                   </tr>
@@ -195,14 +185,9 @@ function Collections() {
                     collections.map(collection => (
                       <tr key={collection._id}>
                         <td>{collection.name}</td>
-                        <td>
-                          {collection.icon ? (
-                            <img src={collection.icon} alt={collection.name} style={{ maxWidth: '50px', maxHeight: '50px' }} />
-                          ) : (
-                            '-'
-                          )}
-                        </td>
+                        <td>{collection.ranking}</td>
                         <td>{collection.description || '-'}</td>
+                        <td>{collection.showHome ? 'Yes' : 'No'}</td>
                         <td>{new Date(collection.createdAt).toLocaleDateString()}</td>
                         <td className="action-buttons">
                           <button className="btn-sm" onClick={() => handleEdit(collection)}>Edit</button>

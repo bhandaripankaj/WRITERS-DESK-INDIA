@@ -2,7 +2,11 @@ import Book from '../models/Book.js'
 
 export const getAllBooks = async (req, res) => {
   try {
-    const books = await Book.find().sort({ createdAt: -1 })
+    const books = await Book.find()
+      .sort({ createdAt: -1 })
+      .populate('categories', 'name')
+      .populate('collections', 'name')
+
     res.json(books)
   } catch (error) {
     console.error('Error fetching books:', error)
@@ -13,6 +17,8 @@ export const getAllBooks = async (req, res) => {
 export const getBookById = async (req, res) => {
   try {
     const book = await Book.findById(req.params.id)
+      .populate('categories', 'name')
+      .populate('collections', 'name')
 
     if (!book) {
       return res.status(404).json({ message: 'Book not found' })
@@ -27,10 +33,10 @@ export const getBookById = async (req, res) => {
 
 export const createBook = async (req, res) => {
   try {
-    const { title, author, subject, description, price, categories, collections, cover, isbn, publishDate, publisher, pages, language, stock, status } = req.body
+    const { title, author, subject, description, price, categories, collections, cover, identificationNumber, publishDate, publisher, pages, language, stock, status } = req.body
 
-    if (!title || !author || !price) {
-      return res.status(400).json({ message: 'Title, author, and price are required' })
+    if (!title || !author || !subject || !categories || !collections || !cover) {
+      return res.status(400).json({ message: 'Title, author, subject, categories, collections, and cover are required' })
     }
 
     const book = new Book({
@@ -38,11 +44,11 @@ export const createBook = async (req, res) => {
       author,
       subject,
       description,
-      price,
-      categories: categories || [],
-      collections: collections || [],
+      price: price || 0,
+      categories,
+      collections,
       cover,
-      isbn,
+      identificationNumber,
       publishDate,
       publisher,
       pages,

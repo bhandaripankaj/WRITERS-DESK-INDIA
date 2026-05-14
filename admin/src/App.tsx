@@ -67,6 +67,16 @@ function App() {
           }
         />
         <Route
+          path="/subscribers"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <UserRequests />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/settings"
           element={
             <ProtectedRoute>
