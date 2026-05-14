@@ -32,44 +32,20 @@ function UserRequests() {
   const filteredRequests = filterStatus === 'all' ? requests : requests.filter(r => r.status === filterStatus)
 
   return (
-    <div className="dashboard">
-      <nav className="dashboard-navbar">
-        <div className="navbar-brand">
-          <h1>📚 Writers Desk Admin</h1>
-        </div>
-        <div className="navbar-content">
-          <span className="user-info">Welcome, {user?.name}!</span>
-          <button onClick={() => logout()} className="logout-button">Logout</button>
-        </div>
-      </nav>
-
-      <div className="dashboard-container">
-        <aside className="sidebar">
-          <ul className="sidebar-menu">
-            <li><button onClick={() => navigate('/dashboard')}>Dashboard</button></li>
-            <li><button onClick={() => navigate('/categories')}>Categories</button></li>
-            <li><button onClick={() => navigate('/collections')}>Collections</button></li>
-            <li><button onClick={() => navigate('/books')}>Books</button></li>
-            <li><button onClick={() => navigate('/user-requests')} className="active">User Requests</button></li>
-            <li><button onClick={() => navigate('/settings')}>Settings</button></li>
-          </ul>
-        </aside>
-
-        <main className="main-content">
-          <section className="content-section">
-            <div className="page-header">
-              <h2>User Requests</h2>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="filter-select"
-              >
-                <option value="all">All Requests</option>
-                <option value="pending">Pending</option>
-                <option value="resolved">Resolved</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
+    <section className="content-section">
+      <div className="page-header">
+        <h2>User Requests</h2>
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="filter-select"
+        >
+          <option value="all">All Requests</option>
+          <option value="pending">Pending</option>
+          <option value="resolved">Resolved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
 
         <div className="table-container">
           <table className="management-table">
@@ -110,9 +86,6 @@ function UserRequests() {
           </table>
             </div>
           </section>
-        </main>
-      </div>
-    </div>
   )
 }
 

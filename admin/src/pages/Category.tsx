@@ -113,41 +113,17 @@ function Category() {
   }
 
   return (
-    <div className="dashboard">
-      <nav className="dashboard-navbar">
-        <div className="navbar-brand">
-          <h1>📚 Writers Desk Admin</h1>
-        </div>
-        <div className="navbar-content">
-          <span className="user-info">Welcome, {user?.name}!</span>
-          <button onClick={() => logout()} className="logout-button">Logout</button>
-        </div>
-      </nav>
-
-      <div className="dashboard-container">
-        <aside className="sidebar">
-          <ul className="sidebar-menu">
-            <li><button onClick={() => navigate('/dashboard')}>Dashboard</button></li>
-            <li><button onClick={() => navigate('/categories')} className="active">Categories</button></li>
-            <li><button onClick={() => navigate('/collections')}>Collections</button></li>
-            <li><button onClick={() => navigate('/books')}>Books</button></li>
-            <li><button onClick={() => navigate('/user-requests')}>User Requests</button></li>
-            <li><button onClick={() => navigate('/settings')}>Settings</button></li>
-          </ul>
-        </aside>
-
-        <main className="main-content">
-          <section className="content-section">
-            <div className="page-header">
-              <h2>Categories Management</h2>
-              <button className="btn-primary" onClick={() => {
-                setFormData({ name: '', description: '', image: '' })
-                setSelectedFile(null)
-                setEditingId(null)
-                setShowForm(!showForm)
-              }}>
-                + Add Category
-              </button>
+    <section className="content-section">
+      <div className="page-header">
+        <h2>Categories Management</h2>
+        <button className="btn-primary" onClick={() => {
+          setFormData({ name: '', description: '', image: '' })
+          setSelectedFile(null)
+          setEditingId(null)
+          setShowForm(!showForm)
+        }}>
+          + Add Category
+        </button>
             </div>
 
             {showForm && (
@@ -244,9 +220,6 @@ function Category() {
               </table>
             </div>
           </section>
-        </main>
-      </div>
-    </div>
   )
 }
 

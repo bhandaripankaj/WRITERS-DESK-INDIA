@@ -8,6 +8,7 @@ import Books from './pages/Books'
 import UserRequests from './pages/UserRequests'
 import Settings from './pages/Settings'
 import ProtectedRoute from './components/ProtectedRoute'
+import Layout from './components/Layout'
 import './styles/App.css'
 
 function App() {
@@ -19,7 +20,9 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Layout>
+                <Dashboard />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -27,7 +30,9 @@ function App() {
           path="/categories"
           element={
             <ProtectedRoute>
-              <Category />
+              <Layout>
+                <Category />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -35,7 +40,9 @@ function App() {
           path="/collections"
           element={
             <ProtectedRoute>
-              <Collections />
+              <Layout>
+                <Collections />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -43,7 +50,9 @@ function App() {
           path="/books"
           element={
             <ProtectedRoute>
-              <Books />
+              <Layout>
+                <Books />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -51,7 +60,9 @@ function App() {
           path="/user-requests"
           element={
             <ProtectedRoute>
-              <UserRequests />
+              <Layout>
+                <UserRequests />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -59,7 +70,9 @@ function App() {
           path="/settings"
           element={
             <ProtectedRoute>
-              <Settings />
+              <Layout>
+                <Settings />
+              </Layout>
             </ProtectedRoute>
           }
         />

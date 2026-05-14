@@ -229,42 +229,18 @@ function Books() {
   )
 
   return (
-    <div className="dashboard">
-      <nav className="dashboard-navbar">
-        <div className="navbar-brand">
-          <h1>📚 Writers Desk Admin</h1>
-        </div>
-        <div className="navbar-content">
-          <span className="user-info">Welcome, {user?.name}!</span>
-          <button onClick={() => logout()} className="logout-button">Logout</button>
-        </div>
-      </nav>
-
-      <div className="dashboard-container">
-        <aside className="sidebar">
-          <ul className="sidebar-menu">
-            <li><button onClick={() => navigate('/dashboard')}>Dashboard</button></li>
-            <li><button onClick={() => navigate('/categories')}>Categories</button></li>
-            <li><button onClick={() => navigate('/collections')}>Collections</button></li>
-            <li><button onClick={() => navigate('/books')} className="active">Books</button></li>
-            <li><button onClick={() => navigate('/user-requests')}>User Requests</button></li>
-            <li><button onClick={() => navigate('/settings')}>Settings</button></li>
-          </ul>
-        </aside>
-
-        <main className="main-content">
-          <section className="content-section">
-            <div className="page-header">
-              <h2>Books Management</h2>
-              <button className="btn-primary" onClick={() => {
-                setFormData({ title: '', author: '', subject: '', price: '', categories: [], collections: [], status: 'active', cover: '' })
-                setSelectedCoverFile(null)
-                setEditingId(null)
-                setShowForm(!showForm)
-              }}>
-                + Add Book
-              </button>
-            </div>
+    <section className="content-section">
+      <div className="page-header">
+        <h2>Books Management</h2>
+        <button className="btn-primary" onClick={() => {
+          setFormData({ title: '', author: '', subject: '', price: '', categories: [], collections: [], status: 'active', cover: '' })
+          setSelectedCoverFile(null)
+          setEditingId(null)
+          setShowForm(!showForm)
+        }}>
+          + Add Book
+        </button>
+      </div>
 
         {showForm && (
           <div className="form-container">
@@ -492,9 +468,6 @@ function Books() {
           </table>
             </div>
           </section>
-        </main>
-      </div>
-    </div>
   )
 }
 

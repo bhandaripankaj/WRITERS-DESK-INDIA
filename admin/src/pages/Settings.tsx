@@ -26,142 +26,115 @@ function Settings() {
   }
 
   return (
-    <div className="dashboard">
-      <nav className="dashboard-navbar">
-        <div className="navbar-brand">
-          <h1>📚 Writers Desk Admin</h1>
-        </div>
-        <div className="navbar-content">
-          <span className="user-info">Welcome, {user?.name}!</span>
-          <button onClick={() => logout()} className="logout-button">Logout</button>
-        </div>
-      </nav>
-
-      <div className="dashboard-container">
-        <aside className="sidebar">
-          <ul className="sidebar-menu">
-            <li><button onClick={() => navigate('/dashboard')}>Dashboard</button></li>
-            <li><button onClick={() => navigate('/categories')}>Categories</button></li>
-            <li><button onClick={() => navigate('/collections')}>Collections</button></li>
-            <li><button onClick={() => navigate('/books')}>Books</button></li>
-            <li><button onClick={() => navigate('/user-requests')}>User Requests</button></li>
-            <li><button onClick={() => navigate('/settings')} className="active">Settings</button></li>
-          </ul>
-        </aside>
-
-        <main className="main-content">
-          <section className="content-section">
-            <div className="page-header">
-              <h2>Settings</h2>
-            </div>
-
-        <div className="settings-container">
-          <div className="settings-section">
-            <h3>General Settings</h3>
-            
-            <div className="setting-item">
-              <label>Site Name</label>
-              <input
-                type="text"
-                value={settings.siteName}
-                onChange={(e) => handleSettingChange('siteName', e.target.value)}
-                className="form-input"
-              />
-            </div>
-
-            <div className="setting-item">
-              <label>Email</label>
-              <input
-                type="email"
-                value={settings.email}
-                onChange={(e) => handleSettingChange('email', e.target.value)}
-                className="form-input"
-              />
-            </div>
-
-            <div className="setting-item">
-              <label>Phone</label>
-              <input
-                type="tel"
-                value={settings.phone}
-                onChange={(e) => handleSettingChange('phone', e.target.value)}
-                className="form-input"
-              />
-            </div>
-
-            <div className="setting-item">
-              <label>Currency</label>
-              <select
-                value={settings.currency}
-                onChange={(e) => handleSettingChange('currency', e.target.value)}
-                className="form-input"
-              >
-                <option value="INR">INR (₹)</option>
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-              </select>
-            </div>
-
-            <div className="setting-item">
-              <label>Timezone</label>
-              <select
-                value={settings.timezone}
-                onChange={(e) => handleSettingChange('timezone', e.target.value)}
-                className="form-input"
-              >
-                <option value="IST">IST (UTC+5:30)</option>
-                <option value="UTC">UTC (UTC+0)</option>
-                <option value="EST">EST (UTC-5)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="settings-section">
-            <h3>Features & Preferences</h3>
-            
-            <div className="setting-toggle">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={settings.maintenanceMode}
-                  onChange={(e) => handleSettingChange('maintenanceMode', e.target.checked)}
-                />
-                Maintenance Mode
-              </label>
-            </div>
-
-            <div className="setting-toggle">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={settings.emailNotifications}
-                  onChange={(e) => handleSettingChange('emailNotifications', e.target.checked)}
-                />
-                Email Notifications
-              </label>
-            </div>
-
-            <div className="setting-toggle">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={settings.darkMode}
-                  onChange={(e) => handleSettingChange('darkMode', e.target.checked)}
-                />
-                Dark Mode
-              </label>
-            </div>
-          </div>
-
-          <div className="settings-buttons">
-            <button className="btn-success" onClick={handleSaveSettings}>Save Settings</button>
-            <button className="btn-secondary">Reset to Default</button>
-          </div>
-            </div>
-          </section>
-        </main>
+    <section className="content-section">
+      <div className="page-header">
+        <h2>Settings</h2>
       </div>
-    </div>
+
+      <div className="settings-container">
+        <div className="settings-section">
+          <h3>General Settings</h3>
+          
+          <div className="setting-item">
+            <label>Site Name</label>
+            <input
+              type="text"
+              value={settings.siteName}
+              onChange={(e) => handleSettingChange('siteName', e.target.value)}
+              className="form-input"
+            />
+          </div>
+
+          <div className="setting-item">
+            <label>Email</label>
+            <input
+              type="email"
+              value={settings.email}
+              onChange={(e) => handleSettingChange('email', e.target.value)}
+              className="form-input"
+            />
+          </div>
+
+          <div className="setting-item">
+            <label>Phone</label>
+            <input
+              type="tel"
+              value={settings.phone}
+              onChange={(e) => handleSettingChange('phone', e.target.value)}
+              className="form-input"
+            />
+          </div>
+
+          <div className="setting-item">
+            <label>Currency</label>
+            <select
+              value={settings.currency}
+              onChange={(e) => handleSettingChange('currency', e.target.value)}
+              className="form-input"
+            >
+              <option value="INR">INR (₹)</option>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+            </select>
+          </div>
+
+          <div className="setting-item">
+            <label>Timezone</label>
+            <select
+              value={settings.timezone}
+              onChange={(e) => handleSettingChange('timezone', e.target.value)}
+              className="form-input"
+            >
+              <option value="IST">IST (UTC+5:30)</option>
+              <option value="UTC">UTC (UTC+0)</option>
+              <option value="EST">EST (UTC-5)</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="settings-section">
+          <h3>Features & Preferences</h3>
+          
+          <div className="setting-toggle">
+            <label>
+              <input
+                type="checkbox"
+                checked={settings.maintenanceMode}
+                onChange={(e) => handleSettingChange('maintenanceMode', e.target.checked)}
+              />
+              Maintenance Mode
+            </label>
+          </div>
+
+          <div className="setting-toggle">
+            <label>
+              <input
+                type="checkbox"
+                checked={settings.emailNotifications}
+                onChange={(e) => handleSettingChange('emailNotifications', e.target.checked)}
+              />
+              Email Notifications
+            </label>
+          </div>
+
+          <div className="setting-toggle">
+            <label>
+              <input
+                type="checkbox"
+                checked={settings.darkMode}
+                onChange={(e) => handleSettingChange('darkMode', e.target.checked)}
+              />
+              Dark Mode
+            </label>
+          </div>
+        </div>
+
+        <div className="settings-buttons">
+          <button className="btn-success" onClick={handleSaveSettings}>Save Settings</button>
+          <button className="btn-secondary">Reset to Default</button>
+        </div>
+      </div>
+    </section>
   )
 }
 

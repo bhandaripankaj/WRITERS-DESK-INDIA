@@ -63,53 +63,27 @@ function Dashboard() {
   const COLORS = ['#3498db', '#e74c3c', '#f39c12']
 
   return (
-    <div className="dashboard">
-      <nav className="dashboard-navbar">
-        <div className="navbar-brand">
-          <h1>📚 Writers Desk Admin</h1>
+    <section className="content-section">
+      <h2>Dashboard</h2>
+      
+      <div className="stats-grid">
+        <div className="stat-card">
+          <h3>Total Books</h3>
+          <p className="stat-value">{books.length}</p>
         </div>
-        <div className="navbar-content">
-          <span className="user-info">Welcome, {user?.name}!</span>
-          <button onClick={handleLogout} className="logout-button">
-            Logout
-          </button>
+        <div className="stat-card">
+          <h3>Active Books</h3>
+          <p className="stat-value">{books.filter(b => b.status === 'active').length}</p>
         </div>
-      </nav>
-
-      <div className="dashboard-container">
-        <aside className="sidebar">
-          <ul className="sidebar-menu">
-            <li><button onClick={() => navigate('/dashboard')} className="active">Dashboard</button></li>
-            <li><button onClick={() => navigate('/categories')}>Categories</button></li>
-            <li><button onClick={() => navigate('/collections')}>Collections</button></li>
-            <li><button onClick={() => navigate('/books')}>Books</button></li>
-            <li><button onClick={() => navigate('/user-requests')}>User Requests</button></li>
-            <li><button onClick={() => navigate('/settings')}>Settings</button></li>
-          </ul>
-        </aside>
-
-        <main className="main-content">
-          <section className="content-section">
-            <h2>Dashboard</h2>
-            
-            <div className="stats-grid">
-              <div className="stat-card">
-                <h3>Total Books</h3>
-                <p className="stat-value">{books.length}</p>
-              </div>
-              <div className="stat-card">
-                <h3>Active Books</h3>
-                <p className="stat-value">{books.filter(b => b.status === 'active').length}</p>
-              </div>
-              <div className="stat-card">
-                <h3>Categories</h3>
-                <p className="stat-value">{categories.length}</p>
-              </div>
-              <div className="stat-card">
-                <h3>Collections</h3>
-                <p className="stat-value">{collections.length}</p>
-              </div>
-            </div>
+        <div className="stat-card">
+          <h3>Categories</h3>
+          <p className="stat-value">{categories.length}</p>
+        </div>
+        <div className="stat-card">
+          <h3>Collections</h3>
+          <p className="stat-value">{collections.length}</p>
+        </div>
+      </div>
 
             <div className="dashboard-grid">
               <section className="chart-section">
@@ -229,9 +203,6 @@ function Dashboard() {
               </section>
             </div>
           </section>
-        </main>
-      </div>
-    </div>
   )
 }
 
