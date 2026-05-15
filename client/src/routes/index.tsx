@@ -171,6 +171,24 @@ const readerTestimonials: ReaderTestimonial[] = [
     quote: "Love the categories and the featured section. I check back every week for new picks.",
     initials: "JE",
   },
+    {
+    name: "Sarah Mitchell",
+    role: "Product designer",
+    quote: "I found three books I never would have picked on my own. The recommendations felt personal.",
+    avatar: sarah,
+  },
+  {
+    name: "Daniel Chen",
+    role: "Startup founder",
+    quote: "Sending interest was quick, and the follow-up was genuinely helpful. Great experience end to end.",
+    initials: "DC",
+  },
+  {
+    name: "Jordan Ellis",
+    role: "Grad student",
+    quote: "Love the categories and the featured section. I check back every week for new picks.",
+    initials: "JE",
+  },
 ];
 
 const plans = [
@@ -270,7 +288,8 @@ function HomePage() {
                 Explore Books <ArrowRight className="h-4 w-4" />
               </Link>
               <Link to="/contact" className="btn-outline">
-                Send Interest <Phone className="h-4 w-4" />
+                Send Interest 
+                {/* <Phone className="h-4 w-4" /> */}
               </Link>
             </div>
             <div className="mt-7 sm:mt-8 flex flex-wrap items-center gap-4 justify-center lg:justify-start">
@@ -356,9 +375,9 @@ function HomePage() {
               <h2 className="mt-3 font-display text-[clamp(1.5rem,5vw,2.6rem)] balance">Explore Categories</h2>
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
                 Discover books by your areas of interest — from technology and business to fiction and design.{" "}
-                <Link to="/collections" className="text-brand font-medium hover:underline">
+                {/* <Link to="/collections" className="text-brand font-medium hover:underline">
                   Browse all collections
-                </Link>
+                </Link> */}
               </p>
             </div>
             <div className="mt-8 sm:mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6 lg:gap-6">
@@ -513,12 +532,14 @@ function HomePage() {
                     {collectionBooks.map((b) => (
                       <div key={b._id} className="group flex flex-col min-w-0">
                         <div className="relative overflow-hidden rounded-lg border border-border aspect-[2/3] bg-surface">
-                          <img
-                            src={VITE_IMAGE_URL+ b.cover}
-                            alt={b.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
-                          />
+                          <Link to={`/books/${b._id}`} className="block h-full w-full">
+                            <img
+                              src={VITE_IMAGE_URL+ b.cover}
+                              alt={b.title}
+                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              loading="lazy"
+                            />
+                          </Link>
                         </div>
                         <div className="mt-3 flex-1 flex flex-col">
                           <p className="font-display text-[13px] sm:text-sm leading-snug line-clamp-2">{b.title}</p>
@@ -597,44 +618,49 @@ function HomePage() {
             <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12 px-1">
               <h2 className="mt-3 font-display text-[clamp(1.5rem,5vw,2.6rem)] balance">What Readers Say</h2>
             </div>
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 mb-12 sm:mb-16">
-              {readerTestimonials.map((t) => (
-                <div key={t.name} className="card-soft p-5 sm:p-6 flex flex-col min-w-0">
-                  <div className="flex items-start gap-3">
-                    {"avatar" in t && t.avatar ? (
-                      <img
-                        src={t.avatar}
-                        alt={t.name}
-                        className="h-12 w-12 rounded-full object-cover shrink-0"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div
-                        className="h-12 w-12 rounded-full grid place-items-center text-sm font-semibold text-brand-foreground shrink-0"
-                        style={{ background: "var(--gradient-brand)" }}
-                      >
-                        {"initials" in t ? t.initials : ""}
+            <div className="relative mb-12 sm:mb-16">
+              <style>{`.testimonial-scroll::-webkit-scrollbar { display: none; }`}</style>
+              <div className="flex gap-4 sm:gap-5 overflow-x-auto scroll-smooth testimonial-scroll pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {readerTestimonials.map((t) => (
+                  <div key={t.name} className="card-soft p-5 sm:p-6 flex flex-col min-w-0 flex-shrink-0 w-[min(320px,100%)]">
+                    <div className="flex items-start gap-3">
+                      {"avatar" in t && t.avatar ? (
+                        <img
+                          src={t.avatar}
+                          alt={t.name}
+                          className="h-12 w-12 rounded-full object-cover shrink-0"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div
+                          className="h-12 w-12 rounded-full grid place-items-center text-sm font-semibold text-brand-foreground shrink-0"
+                          style={{ background: "var(--gradient-brand)" }}
+                        >
+                          {"initials" in t ? t.initials : ""}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-display text-sm font-semibold">{t.name}</p>
+                        <p className="text-[11px] text-muted-foreground">{t.role}</p>
                       </div>
-                    )}
-                    <div className="min-w-0">
-                      <p className="font-display text-sm font-semibold">{t.name}</p>
-                      <p className="text-[11px] text-muted-foreground">{t.role}</p>
+                    </div>
+                    <Quote className="h-4 w-4 text-brand mt-4 mb-2 opacity-80" />
+                    <p className="text-sm text-muted-foreground leading-relaxed flex-1">{t.quote}</p>
+                    <div className="mt-4 flex gap-0.5 text-[var(--warning)]">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="h-3.5 w-3.5 fill-current" />
+                      ))}
                     </div>
                   </div>
-                  <Quote className="h-4 w-4 text-brand mt-4 mb-2 opacity-80" />
-                  <p className="text-sm text-muted-foreground leading-relaxed flex-1">{t.quote}</p>
-                  <div className="mt-4 flex gap-0.5 text-[var(--warning)]">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-3.5 w-3.5 fill-current" />
-                    ))}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <div className="pointer-events-none absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-background to-transparent" />
+              <div className="pointer-events-none absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-background to-transparent" />
             </div>
 
             <div>
               <div className="text-center">
-                <span className="eyebrow">Pricing Plans</span>
+                {/* <span className="eyebrow">Pricing Plans</span> */}
                 <h3 className="mt-3 font-display text-2xl">Affordable Plans for Every Author</h3>
               </div>
               <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -686,7 +712,8 @@ function HomePage() {
               Explore Books <ArrowRight className="h-4 w-4" />
             </Link>
             <Link to="/contact" className="btn-outline">
-              Send Interest <Phone className="h-4 w-4" />
+              Send Interest 
+              {/* <Phone className="h-4 w-4" /> */}
             </Link>
           </div>
         </div>

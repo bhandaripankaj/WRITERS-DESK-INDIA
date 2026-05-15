@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Outlet, createFileRoute, useMatch, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -63,6 +63,7 @@ export const Route = createFileRoute("/books")({
 function BooksPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
+  const bookDetailMatch = useMatch({ from: "/books/$bookId", shouldThrow: false });
   const collectionId = search.collection;
   const selectedCategoryIds = categoriesFromSearch(search.categories);
 
@@ -154,6 +155,10 @@ function BooksPage() {
     });
   };
 
+  if (bookDetailMatch) {
+    return <Outlet />;
+  }
+
   return (
     <>
       <PageHero
@@ -228,12 +233,14 @@ function BooksPage() {
             {filteredBooks.map((b) => (
               <div key={b._id} className="group flex flex-col min-w-0">
                 <div className="relative overflow-hidden rounded-lg border border-border aspect-[2/3] bg-surface">
-                  <img
-                    src={VITE_IMAGE_URL + b.cover}
-                    alt={b.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                  />
+                  <Link to={`/books/${b._id}`} className="block h-full w-full">
+                    <img
+                      src={VITE_IMAGE_URL + b.cover}
+                      alt={b.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  </Link>
                 </div>
                 <div className="mt-3 flex-1 flex flex-col">
                   <p className="font-display text-[13px] sm:text-sm leading-snug line-clamp-2">{b.title}</p>

@@ -19,6 +19,7 @@ import { Route as CollectionsRouteImport } from './routes/collections'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BooksBookIdRouteImport } from './routes/books.$bookId'
 
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
@@ -70,11 +71,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BooksBookIdRoute = BooksBookIdRouteImport.update({
+  id: '/$bookId',
+  path: '/$bookId',
+  getParentRoute: () => BooksRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/books': typeof BooksRoute
+  '/books': typeof BooksRouteWithChildren
   '/collections': typeof CollectionsRoute
   '/contact': typeof ContactRoute
   '/explore': typeof ExploreRoute
@@ -82,11 +88,12 @@ export interface FileRoutesByFullPath {
   '/portfolio': typeof PortfolioRoute
   '/resources': typeof ResourcesRoute
   '/services': typeof ServicesRoute
+  '/books/$bookId': typeof BooksBookIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/books': typeof BooksRoute
+  '/books': typeof BooksRouteWithChildren
   '/collections': typeof CollectionsRoute
   '/contact': typeof ContactRoute
   '/explore': typeof ExploreRoute
@@ -94,12 +101,13 @@ export interface FileRoutesByTo {
   '/portfolio': typeof PortfolioRoute
   '/resources': typeof ResourcesRoute
   '/services': typeof ServicesRoute
+  '/books/$bookId': typeof BooksBookIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/books': typeof BooksRoute
+  '/books': typeof BooksRouteWithChildren
   '/collections': typeof CollectionsRoute
   '/contact': typeof ContactRoute
   '/explore': typeof ExploreRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/portfolio': typeof PortfolioRoute
   '/resources': typeof ResourcesRoute
   '/services': typeof ServicesRoute
+  '/books/$bookId': typeof BooksBookIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/resources'
     | '/services'
+    | '/books/$bookId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/resources'
     | '/services'
+    | '/books/$bookId'
   id:
     | '__root__'
     | '/'
@@ -145,12 +156,13 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/resources'
     | '/services'
+    | '/books/$bookId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  BooksRoute: typeof BooksRoute
+  BooksRoute: typeof BooksRouteWithChildren
   CollectionsRoute: typeof CollectionsRoute
   ContactRoute: typeof ContactRoute
   ExploreRoute: typeof ExploreRoute
@@ -232,13 +244,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/books/$bookId': {
+      id: '/books/$bookId'
+      path: '/$bookId'
+      fullPath: '/books/$bookId'
+      preLoaderRoute: typeof BooksBookIdRouteImport
+      parentRoute: typeof BooksRoute
+    }
   }
 }
+
+interface BooksRouteChildren {
+  BooksBookIdRoute: typeof BooksBookIdRoute
+}
+
+const BooksRouteChildren: BooksRouteChildren = {
+  BooksBookIdRoute: BooksBookIdRoute,
+}
+
+const BooksRouteWithChildren = BooksRoute._addFileChildren(BooksRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  BooksRoute: BooksRoute,
+  BooksRoute: BooksRouteWithChildren,
   CollectionsRoute: CollectionsRoute,
   ContactRoute: ContactRoute,
   ExploreRoute: ExploreRoute,
